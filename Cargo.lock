@@ -47,7 +47,7 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 [[package]]
 name = "bulletproofs"
 version = "2.0.0"
-source = "git+https://github.com/edgeware-builders/bulletproofs?branch=main#98209e20f329ee9b423e5238f97ef7adc26d9268"
+source = "git+https://github.com/edgeware-builders/bulletproofs?branch=main#679a440bacfe120aff8bd2594f1fe72378210468"
 dependencies = [
  "byteorder",
  "clear_on_drop",
