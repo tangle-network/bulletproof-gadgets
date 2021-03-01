@@ -95,6 +95,18 @@ impl PoseidonBuilder {
 		self
 	}
 
+	pub fn num_rounds(
+		&mut self,
+		full_b: usize,
+		full_e: usize,
+		partial: usize,
+	) -> &mut Self {
+		self.full_rounds_beginning = Some(full_b);
+		self.full_rounds_end = Some(full_e);
+		self.partial_rounds = Some(partial);
+		self
+	}
+
 	pub fn round_keys_hex(&mut self, r_keys: Vec<String>) -> &mut Self {
 		let cap = if self.full_rounds_beginning.is_some()
 			&& self.full_rounds_end.is_some()
@@ -133,6 +145,16 @@ impl PoseidonBuilder {
 		self
 	}
 
+	pub fn round_keys(mut self, keys: Vec<Scalar>) -> Self {
+		self.round_keys = Some(keys);
+		self
+	}
+
+	pub fn mds_matrix(mut self, matrix: Vec<Vec<Scalar>>) -> Self {
+		self.mds_matrix = Some(matrix);
+		self
+	}
+
 	pub fn build(self) -> Poseidon {
 		let width = self.width;
 
@@ -146,8 +168,19 @@ impl PoseidonBuilder {
 		let mds_matrix =
 			self.mds_matrix.unwrap_or(gen_mds_matrix(width, &sbox));
 
-		let (partial_rounds, (full_rounds_beginning, full_rounds_end)) =
-			gen_round_params(width, &sbox);
+		let (
+			default_partial_rounds,
+			(default_full_rounds_beginning, default_full_rounds_end),
+		) = gen_round_params(width, &sbox);
+
+		let full_rounds_beginning = self
+			.full_rounds_beginning
+			.unwrap_or(default_full_rounds_beginning);
+		let full_rounds_end = self
+			.full_rounds_beginning
+			.unwrap_or(default_full_rounds_end);
+		let partial_rounds =
+			self.full_rounds_beginning.unwrap_or(default_partial_rounds);
 
 		// default pedersen genrators
 		let pc_gens = self.pc_gens.unwrap_or_else(PedersenGens::default);
