@@ -224,11 +224,11 @@ impl Poseidon {
 			.is_ok());
 
 			println!(
-                "For Poseidon hash 2:1 rounds {}, no of constraints is {}, no of multipliers is {}",
-                total_rounds,
-                &prover.num_constraints(),
-                &prover.num_multipliers()
-            );
+				"For Poseidon hash 2:1 rounds {}, no of constraints is {}, no of multipliers is {}",
+				total_rounds,
+				&prover.num_constraints(),
+				&prover.num_multipliers()
+			);
 
 			let proof = prover.prove_with_rng(&self.bp_gens, &mut rng).unwrap();
 

@@ -135,11 +135,11 @@ fn test_fixed_deposit_tree_verification() {
 		.is_ok());
 
 		println!(
-            "For binary tree of height {}, no of multipliers is {} and constraints is {}",
-            tree.depth,
-            &prover.num_multipliers(),
-            &prover.num_constraints()
-        );
+			"For binary tree of height {}, no of multipliers is {} and constraints is {}",
+			tree.depth,
+			&prover.num_multipliers(),
+			&prover.num_constraints()
+		);
 
 		let proof = prover.prove_with_rng(&bp_gens, &mut test_rng).unwrap();
 		let end = start.elapsed();
