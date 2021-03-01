@@ -17,7 +17,9 @@ fn get_poseidon_params(sbox: Option<PoseidonSbox>) -> Poseidon {
 	let width = 6;
 	let sbox = sbox.unwrap_or_else(|| PoseidonSbox::Inverse);
 
-	PoseidonBuilder::new(width).sbox(sbox).build()
+	let builder = PoseidonBuilder::new(width).sbox(sbox);
+	let poseidon = builder.build();
+	poseidon
 }
 
 #[cfg(feature = "std")]

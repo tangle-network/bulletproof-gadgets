@@ -23,8 +23,6 @@ use std::time::Instant;
 fn test_vanilla_sparse_merkle_tree() {
 	let mut test_rng: OsRng = OsRng::default();
 	let width = 6;
-	let (full_b, full_e) = (4, 4);
-	let partial_rounds = 57;
 	let p_params = PoseidonBuilder::new(width)
 		.sbox(PoseidonSbox::Inverse)
 		.build();
@@ -218,8 +216,6 @@ fn test_vsmt_prove_verif() {
 	let mut test_rng = OsRng::default();
 
 	let width = 6;
-	let (full_b, full_e) = (4, 4);
-	let partial_rounds = 57;
 	let p_params = PoseidonBuilder::new(width)
 		.sbox(PoseidonSbox::Inverse)
 		.build();

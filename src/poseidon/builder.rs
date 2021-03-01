@@ -1,8 +1,5 @@
 use crate::{
-	crypto_constants::poseidon::{
-		constants_3, constants_4, constants_5, constants_6, constants_7,
-		constants_8, constants_9, params,
-	},
+	crypto_constants::{poseidon, poseidon::params},
 	poseidon::{
 		allocate_statics_for_prover, sbox::PoseidonSbox, Poseidon_hash_2_gadget,
 	},
@@ -65,8 +62,6 @@ pub struct PoseidonBuilder {
 	pub partial_rounds: Option<usize>,
 	/// The S-box to apply in the sub words layer.
 	sbox: Option<PoseidonSbox>,
-	/// The desired (classical) security level, in bits.
-	security_bits: Option<usize>,
 	/// The round key constants
 	pub round_keys: Option<Vec<Scalar>>,
 	/// The MDS matrix to apply in the mix layer.
@@ -87,7 +82,6 @@ impl PoseidonBuilder {
 			full_rounds_end: None,
 			partial_rounds: None,
 			sbox: None,
-			security_bits: None,
 			round_keys: None,
 			mds_matrix: None,
 			transcript_label: None,
@@ -96,13 +90,8 @@ impl PoseidonBuilder {
 		}
 	}
 
-	pub fn sbox(&mut self, sbox: PoseidonSbox) -> &mut Self {
+	pub fn sbox(mut self, sbox: PoseidonSbox) -> Self {
 		self.sbox = Some(sbox);
-		self
-	}
-
-	pub fn security_bits(&mut self, security_bits: usize) -> &mut Self {
-		self.security_bits = Some(security_bits);
 		self
 	}
 
@@ -129,51 +118,36 @@ impl PoseidonBuilder {
 		self
 	}
 
-	pub fn transcript_label(&mut self, label: &'static [u8]) -> &mut Self {
+	pub fn transcript_label(mut self, label: &'static [u8]) -> Self {
 		self.transcript_label = Some(label);
 		self
 	}
 
-	pub fn pedersen_gens(&mut self, gens: PedersenGens) -> &mut Self {
+	pub fn pedersen_gens(mut self, gens: PedersenGens) -> Self {
 		self.pc_gens = Some(gens);
 		self
 	}
 
-	pub fn bulletproof_gens(&mut self, gens: BulletproofGens) -> &mut Self {
+	pub fn bulletproof_gens(mut self, gens: BulletproofGens) -> Self {
 		self.bp_gens = Some(gens);
 		self
 	}
 
-	pub fn build(&self) -> Poseidon {
+	pub fn build(self) -> Poseidon {
 		let width = self.width;
-
-		let round_keys = self
-			.round_keys
-			.clone()
-			.expect("Round keys required for now");
-
-		// TODO: Generate a default MDS matrix instead of making the caller
-		// supply one.
-		let mds_matrix = self
-			.mds_matrix
-			.clone()
-			.expect("MDS matrix required for now");
 
 		// If an S-box is not specified, determine the optimal choice based on
 		// the guidance in the paper.
 		let sbox = self.sbox.unwrap_or(PoseidonSbox::Inverse);
 
-		if self.full_rounds_beginning.is_some()
-			&& self.full_rounds_end.is_some()
-			&& self.partial_rounds.is_some()
-			&& self.security_bits.is_some()
-		{
-			panic!("Cannot specify both the number of rounds and the desired security level");
-		}
+		let round_keys =
+			self.round_keys.unwrap_or(gen_round_keys(width, &sbox));
 
-		let full_rounds_beginning = self.full_rounds_beginning.unwrap_or(3);
-		let full_rounds_end = self.full_rounds_end.unwrap_or(3);
-		let partial_rounds = self.partial_rounds.unwrap_or(57);
+		let mds_matrix =
+			self.mds_matrix.unwrap_or(gen_mds_matrix(width, &sbox));
+
+		let (partial_rounds, (full_rounds_beginning, full_rounds_end)) =
+			gen_round_params(width, &sbox);
 
 		// default pedersen genrators
 		let pc_gens = self.pc_gens.unwrap_or_else(PedersenGens::default);
@@ -310,37 +284,47 @@ pub fn gen_round_params(
 }
 
 // TODO: Write logic to generate correct round keys.
-pub fn gen_round_keys(width: usize, total_rounds: usize) -> Vec<Scalar> {
-	let round_consts = if width == 3 {
-		constants_3::ROUND_CONSTS.to_vec()
-	} else if width == 4 {
-		constants_4::ROUND_CONSTS.to_vec()
-	} else if width == 5 {
-		constants_5::ROUND_CONSTS.to_vec()
-	} else if width == 6 {
-		constants_6::ROUND_CONSTS.to_vec()
-	} else if width == 7 {
-		constants_7::ROUND_CONSTS.to_vec()
-	} else if width == 8 {
-		constants_8::ROUND_CONSTS.to_vec()
-	} else if width == 9 {
-		constants_9::ROUND_CONSTS.to_vec()
-	} else {
-		constants_3::ROUND_CONSTS.to_vec()
+pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
+	let round_consts = match sbox {
+		PoseidonSbox::Exponentiation3 => match width {
+			2 => poseidon::x3_2::ROUND_CONSTS.to_vec(),
+			3 => poseidon::x3_3::ROUND_CONSTS.to_vec(),
+			4 => poseidon::x3_4::ROUND_CONSTS.to_vec(),
+			5 => poseidon::x3_5::ROUND_CONSTS.to_vec(),
+			6 => poseidon::x3_6::ROUND_CONSTS.to_vec(),
+			7 => poseidon::x3_7::ROUND_CONSTS.to_vec(),
+			8 => poseidon::x3_8::ROUND_CONSTS.to_vec(),
+			9 => poseidon::x3_9::ROUND_CONSTS.to_vec(),
+			_ => poseidon::x3_4::ROUND_CONSTS.to_vec(),
+		},
+
+		PoseidonSbox::Exponentiation5 => match width {
+			2 => poseidon::x5_2::ROUND_CONSTS.to_vec(),
+			3 => poseidon::x5_3::ROUND_CONSTS.to_vec(),
+			4 => poseidon::x5_4::ROUND_CONSTS.to_vec(),
+			5 => poseidon::x5_5::ROUND_CONSTS.to_vec(),
+			6 => poseidon::x5_6::ROUND_CONSTS.to_vec(),
+			7 => poseidon::x5_7::ROUND_CONSTS.to_vec(),
+			8 => poseidon::x5_8::ROUND_CONSTS.to_vec(),
+			9 => poseidon::x5_9::ROUND_CONSTS.to_vec(),
+			_ => poseidon::x5_4::ROUND_CONSTS.to_vec(),
+		},
+
+		PoseidonSbox::Inverse => match width {
+			2 => poseidon::inverse_2::ROUND_CONSTS.to_vec(),
+			3 => poseidon::inverse_3::ROUND_CONSTS.to_vec(),
+			4 => poseidon::inverse_4::ROUND_CONSTS.to_vec(),
+			5 => poseidon::inverse_5::ROUND_CONSTS.to_vec(),
+			6 => poseidon::inverse_6::ROUND_CONSTS.to_vec(),
+			7 => poseidon::inverse_7::ROUND_CONSTS.to_vec(),
+			8 => poseidon::inverse_8::ROUND_CONSTS.to_vec(),
+			9 => poseidon::inverse_9::ROUND_CONSTS.to_vec(),
+			_ => poseidon::inverse_4::ROUND_CONSTS.to_vec(),
+		},
 	};
 
-	let cap = total_rounds * width;
-	// let mut test_rng: StdRng = SeedableRng::from_seed([24u8; 32]);
-	// vec![Scalar::random(&mut test_rng); cap]
-	if round_consts.len() < cap {
-		panic!(
-			"Not enough round constants, need {}, found {}",
-			cap,
-			round_consts.len()
-		);
-	}
 	let mut rc = vec![];
-	for r in round_consts.iter().take(cap) {
+	for r in round_consts.iter() {
 		let c = get_scalar_from_hex(r);
 		rc.push(c);
 	}
@@ -349,67 +333,155 @@ pub fn gen_round_keys(width: usize, total_rounds: usize) -> Vec<Scalar> {
 
 // TODO: Write logic to generate correct MDS matrix. Currently loading hardcoded
 // constants.
-pub fn gen_mds_matrix(width: usize) -> Vec<Vec<Scalar>> {
-	let mds_entries: Vec<Vec<&str>> = if width == 3 {
-		constants_3::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
-	} else if width == 4 {
-		constants_4::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
-	} else if width == 5 {
-		constants_5::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
-	} else if width == 6 {
-		constants_6::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
-	} else if width == 7 {
-		constants_7::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
-	} else if width == 8 {
-		constants_8::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
-	} else if width == 9 {
-		constants_9::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
-	} else {
-		constants_3::MDS_ENTRIES
-			.to_vec()
-			.iter()
-			.map(|v| v.to_vec())
-			.collect()
+pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
+	let mds_entries: Vec<Vec<&str>> = match sbox {
+		PoseidonSbox::Exponentiation3 => match width {
+			2 => poseidon::x3_2::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			3 => poseidon::x3_3::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			4 => poseidon::x3_4::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			5 => poseidon::x3_5::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			6 => poseidon::x3_6::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			7 => poseidon::x3_7::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			8 => poseidon::x3_8::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			9 => poseidon::x3_9::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			_ => poseidon::x3_4::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+		},
+
+		PoseidonSbox::Exponentiation5 => match width {
+			2 => poseidon::x5_2::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			3 => poseidon::x5_3::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			4 => poseidon::x5_4::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			5 => poseidon::x5_5::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			6 => poseidon::x5_6::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			7 => poseidon::x5_7::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			8 => poseidon::x5_8::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			9 => poseidon::x5_9::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			_ => poseidon::x5_4::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+		},
+
+		PoseidonSbox::Inverse => match width {
+			2 => poseidon::inverse_2::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			3 => poseidon::inverse_3::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			4 => poseidon::inverse_4::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			5 => poseidon::inverse_5::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			6 => poseidon::inverse_6::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			7 => poseidon::inverse_7::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			8 => poseidon::inverse_8::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			9 => poseidon::inverse_9::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			_ => poseidon::inverse_4::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+		},
 	};
 
-	// let mut test_rng: StdRng = SeedableRng::from_seed([24u8; 32]);
-	// vec![vec![Scalar::random(&mut test_rng); width]; width]
-	if mds_entries.len() != width {
-		panic!("Incorrect width, only width {} is supported now", width);
-	}
 	let mut mds: Vec<Vec<Scalar>> = vec![vec![Scalar::zero(); width]; width];
 	for i in 0..width {
-		if mds_entries[i].len() != width {
-			panic!("Incorrect width, only width {} is supported now", width);
-		}
 		for j in 0..width {
 			// TODO: Remove unwrap, handle error
 			mds[i][j] = get_scalar_from_hex(mds_entries[i][j]);

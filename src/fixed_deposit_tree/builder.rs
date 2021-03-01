@@ -1,8 +1,8 @@
 use crate::{
 	fixed_deposit_tree::fixed_deposit_tree_verif_gadget,
 	poseidon::{
-		allocate_statics_for_prover, builder::Poseidon, gen_mds_matrix,
-		gen_round_keys, sbox::PoseidonSbox, PoseidonBuilder, Poseidon_hash_2,
+		allocate_statics_for_prover, builder::Poseidon, sbox::PoseidonSbox,
+		PoseidonBuilder, Poseidon_hash_2,
 	},
 	smt::{
 		builder::{SparseMerkleTreeBuilder, DEFAULT_TREE_DEPTH},
@@ -209,8 +209,6 @@ impl FixedDepositTreeBuilder {
 		let depth = self.depth.unwrap_or(DEFAULT_TREE_DEPTH);
 		let hash_params = self.hash_params.clone().unwrap_or_else(|| {
 			let width = 6;
-			let (full_b, full_e) = (4, 4);
-			let partial_rounds = 57;
 			PoseidonBuilder::new(width)
 				.sbox(PoseidonSbox::Inverse)
 				.build()

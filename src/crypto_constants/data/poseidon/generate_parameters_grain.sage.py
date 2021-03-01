@@ -110,14 +110,9 @@ def generate_constants(field, n, t, R_F, R_P, prime_number):
     return round_constants
 
 def print_round_constants(round_constants, n, field):
-    print("Number of round constants:", len(round_constants))
-
-    if field == _sage_const_0 :
-        print("Round constants for GF(2^n):")
-    elif field == _sage_const_1 :
-        print("Round constants for GF(p):")
     hex_length = int(ceil(float(n) / _sage_const_4 )) + _sage_const_2  # +2 for "0x"
-    print(["{0:#0{1}x}".format(entry, hex_length) for entry in round_constants])
+    arr = ["{0:#0{1}x}".format(entry, hex_length) for entry in round_constants]
+    print("pub const ROUND_CONSTS: [&str; {0}] = {1}".format(len(arr), arr))
 
 def create_mds_p(n, t):
     M = matrix(F, t, t)
@@ -314,21 +309,14 @@ def generate_matrix(FIELD, FIELD_SIZE, NUM_CELLS):
         return mds_matrix
 
 def print_linear_layer(M, n, t):
-    print("n:", n)
-    print("t:", t)
-    print("N:", (n * t))
-    print("Result Algorithm 1:\n", algorithm_1(M, NUM_CELLS))
-    print("Result Algorithm 2:\n", algorithm_2(M, NUM_CELLS))
-    print("Result Algorithm 3:\n", algorithm_3(M, NUM_CELLS))
     hex_length = int(ceil(float(n) / _sage_const_4 )) + _sage_const_2  # +2 for "0x"
-    print("Prime number:", "0x" + hex(PRIME_NUMBER))
     matrix_string = "["
     for i in range(_sage_const_0 , t):
         matrix_string += str(["{0:#0{1}x}".format(int(entry), hex_length) for entry in M[i]])
         if i < (t-_sage_const_1 ):
             matrix_string += ","
     matrix_string += "]"
-    print("MDS matrix:\n", matrix_string)
+    print("pub const MDS_ENTRIES: [[&str; {0}]; {0}] = {1}".format(t, matrix_string))
 
 # Init
 init_generator(FIELD, SBOX, FIELD_SIZE, NUM_CELLS, R_F_FIXED, R_P_FIXED)

@@ -20,9 +20,6 @@ use std::time::Instant;
 #[cfg(feature = "std")]
 fn get_poseidon_params(sbox: Option<PoseidonSbox>) -> Poseidon {
 	let width = 6;
-	let (full_b, full_e) = (4, 4);
-	let partial_rounds = 57;
-
 	let sbox = sbox.unwrap_or_else(|| PoseidonSbox::Inverse);
 
 	PoseidonBuilder::new(width).sbox(sbox).build()
