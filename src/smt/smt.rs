@@ -31,25 +31,24 @@ pub struct VanillaSparseMerkleTree {
 	hash_params: Poseidon,
 	pub root: Scalar,
 	curr_index: Scalar,
-	edge_nodes: Vec<Scalar>,
 	pub(crate) leaf_indices: BTreeMap<ScalarBytes, Scalar>,
 }
 
 impl VanillaSparseMerkleTree {
 	pub fn new(hash_params: Poseidon, depth: usize) -> VanillaSparseMerkleTree {
-		let mut edge_nodes = vec![Scalar::zero()];
 		let mut db = BTreeMap::new();
+		// NOTE: ZERO_TREE was created with Poseidon with parameters:
+		// width 6, Exponentiation3
+		// Non-membership proofs are not possible if tree uses
+		// different parameters or different hasher altogether
 		for i in 1..=depth {
-			let prev = edge_nodes[i - 1];
-			// Ensure using PoseidonSbox::Inverse
-			let new = Poseidon_hash_2(prev, prev, &hash_params);
-			edge_nodes.push(new);
-			let key = new.to_bytes();
+			let prev = Scalar::from_bytes_mod_order(ZERO_TREE[i - 1]);
+			let curr = ZERO_TREE[i];
 
-			db.insert(key, (prev, prev));
+			db.insert(curr, (prev, prev));
 		}
 
-		let root = *edge_nodes.last().unwrap();
+		let root = Scalar::from_bytes_mod_order(ZERO_TREE[depth]);
 
 		VanillaSparseMerkleTree {
 			depth,
@@ -57,7 +56,6 @@ impl VanillaSparseMerkleTree {
 			hash_params,
 			root,
 			curr_index: Scalar::zero(),
-			edge_nodes,
 			leaf_indices: BTreeMap::new(),
 		}
 	}
