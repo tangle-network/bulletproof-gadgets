@@ -7,6 +7,22 @@ use std::{
 	path::Path,
 };
 
+// NOTE: Code used to generate ZERO_TREE
+// pub fn print_zero_tree() {
+// 	let hasher = PoseidonBuilder::new(6)
+// 		.sbox(PoseidonSbox::Exponentiation3)
+// 		.build();
+
+// 	let mut curr = Scalar::zero();
+// 	let mut tree = vec![curr.to_bytes()];
+// 	for _ in 0..256 {
+// 		curr = Poseidon_hash_2(curr, curr, &hasher);
+// 		tree.push(curr.to_bytes());
+// 	}
+
+// 	println!("{:?}", tree);
+// }
+
 pub fn print_constants() {
 	for i in 2..10 {
 		let p = format!("./data/poseidon/round_constants_{}.txt", i);
@@ -17,7 +33,8 @@ pub fn print_constants() {
 			// Consumes the iterator, returns an (Optional) String
 			for line in lines {
 				if let Ok(num) = line {
-					let val: BigUint = std::str::FromStr::from_str(&num).unwrap();
+					let val: BigUint =
+						std::str::FromStr::from_str(&num).unwrap();
 					let mut s = hex::encode(val.to_bytes_le());
 					s = "0x".to_owned() + &s;
 					v.push(s);
@@ -50,7 +67,10 @@ where
 	Ok(io::BufReader::new(file).lines())
 }
 
-pub fn write_file<T: std::fmt::Display, P: std::convert::AsRef<std::path::Path>>(
+pub fn write_file<
+	T: std::fmt::Display,
+	P: std::convert::AsRef<std::path::Path>,
+>(
 	filename: P,
 	data: Vec<T>,
 ) -> std::io::Result<()> {
