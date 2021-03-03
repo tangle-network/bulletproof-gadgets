@@ -10,6 +10,8 @@ jobs:
     working_directory: ~/bulletproof-gadgets
 
     steps:
+      - checkout
+      - run: cargo --version
       - run: ~/bulletproof-gadgets/scripts/init.sh
       - run: ~/bulletproof-gadgets/scripts/test.sh
       - run: ~/bulletproof-gadgets/scripts/build.sh
