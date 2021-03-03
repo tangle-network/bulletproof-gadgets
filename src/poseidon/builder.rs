@@ -287,7 +287,7 @@ pub fn gen_round_params(
 			7 => params::X3_7,
 			8 => params::X3_8,
 			9 => params::X3_9,
-			_ => params::X3_4,
+			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Exponentiation5 => match width {
 			2 => params::X5_2,
@@ -298,7 +298,7 @@ pub fn gen_round_params(
 			7 => params::X5_7,
 			8 => params::X5_8,
 			9 => params::X5_9,
-			_ => params::X5_4,
+			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Inverse => match width {
 			2 => params::INVERSE_2,
@@ -309,7 +309,7 @@ pub fn gen_round_params(
 			7 => params::INVERSE_7,
 			8 => params::INVERSE_8,
 			9 => params::INVERSE_9,
-			_ => params::INVERSE_4,
+			_ => panic!("Specified width not supported"),
 		},
 	};
 	let full_part = params[0] / 2;
@@ -328,7 +328,7 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 			7 => poseidon::x3_7::ROUND_CONSTS.to_vec(),
 			8 => poseidon::x3_8::ROUND_CONSTS.to_vec(),
 			9 => poseidon::x3_9::ROUND_CONSTS.to_vec(),
-			_ => poseidon::x3_4::ROUND_CONSTS.to_vec(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Exponentiation5 => match width {
@@ -340,7 +340,7 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 			7 => poseidon::x5_7::ROUND_CONSTS.to_vec(),
 			8 => poseidon::x5_8::ROUND_CONSTS.to_vec(),
 			9 => poseidon::x5_9::ROUND_CONSTS.to_vec(),
-			_ => poseidon::x5_4::ROUND_CONSTS.to_vec(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Inverse => match width {
@@ -352,7 +352,7 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 			7 => poseidon::inverse_7::ROUND_CONSTS.to_vec(),
 			8 => poseidon::inverse_8::ROUND_CONSTS.to_vec(),
 			9 => poseidon::inverse_9::ROUND_CONSTS.to_vec(),
-			_ => poseidon::inverse_4::ROUND_CONSTS.to_vec(),
+			_ => panic!("Specified width not supported"),
 		},
 	};
 
@@ -409,11 +409,7 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
-			_ => poseidon::x3_4::MDS_ENTRIES
-				.to_vec()
-				.iter()
-				.map(|x| x.to_vec())
-				.collect(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Exponentiation5 => match width {
@@ -457,11 +453,7 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
-			_ => poseidon::x5_4::MDS_ENTRIES
-				.to_vec()
-				.iter()
-				.map(|x| x.to_vec())
-				.collect(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Inverse => match width {
@@ -505,11 +497,7 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
-			_ => poseidon::inverse_4::MDS_ENTRIES
-				.to_vec()
-				.iter()
-				.map(|x| x.to_vec())
-				.collect(),
+			_ => panic!("Specified width not supported"),
 		},
 	};
 

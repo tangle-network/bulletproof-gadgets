@@ -2,26 +2,55 @@ use num_bigint::BigUint;
 use std::io::Write;
 
 use std::{
+	env,
 	fs::File,
 	io::{self, BufRead},
 	path::Path,
 };
 
+use crate::poseidon::{PoseidonBuilder, PoseidonSbox, Poseidon_hash_2};
+use curve25519_dalek::scalar::Scalar;
+
 // NOTE: Code used to generate ZERO_TREE
-// pub fn print_zero_tree() {
-// 	let hasher = PoseidonBuilder::new(6)
-// 		.sbox(PoseidonSbox::Exponentiation3)
-// 		.build();
+pub fn generate_zero_trees() {
+	let curr_dir = env::current_dir().unwrap();
+	let width = 6;
+	let base = format!("{}/src/crypto_constants/smt", curr_dir.display());
+	write_zero_tree(
+		width,
+		&PoseidonSbox::Exponentiation3,
+		format!("{}/x3_{}.rs", base, width),
+	);
+	write_zero_tree(
+		width,
+		&PoseidonSbox::Exponentiation5,
+		format!("{}/x5_{}.rs", base, width),
+	);
+	write_zero_tree(
+		width,
+		&PoseidonSbox::Inverse,
+		format!("{}/inverse_{}.rs", base, width),
+	);
+}
 
-// 	let mut curr = Scalar::zero();
-// 	let mut tree = vec![curr.to_bytes()];
-// 	for _ in 0..256 {
-// 		curr = Poseidon_hash_2(curr, curr, &hasher);
-// 		tree.push(curr.to_bytes());
-// 	}
+pub fn write_zero_tree(width: usize, sbox: &PoseidonSbox, path: String) {
+	let hasher = PoseidonBuilder::new(width).sbox(*sbox).build();
 
-// 	println!("{:?}", tree);
-// }
+	let mut curr = Scalar::zero();
+	let mut tree = vec![curr.to_bytes()];
+	for _ in 0..256 {
+		curr = Poseidon_hash_2(curr, curr, &hasher);
+		tree.push(curr.to_bytes());
+	}
+
+	let mut data = "pub const ZERO_TREE: [[u8; 32]; 257] =".to_string();
+	data.push_str(&format!("{:?}", tree));
+	data.push_str(";");
+
+	println!("{:?}", path);
+	let mut file = File::create(path).unwrap();
+	file.write_all(data.as_bytes()).unwrap();
+}
 
 pub fn print_constants() {
 	for i in 2..10 {
