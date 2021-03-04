@@ -1,5 +1,5 @@
 use crate::{
-	crypto_constants::smt::ZERO_TREE,
+	crypto_constants::smt,
 	poseidon::{
 		allocate_statics_for_prover, builder::Poseidon, PoseidonSbox,
 		Poseidon_hash_2, Poseidon_hash_2_constraints,
@@ -37,18 +37,15 @@ pub struct VanillaSparseMerkleTree {
 impl VanillaSparseMerkleTree {
 	pub fn new(hash_params: Poseidon, depth: usize) -> VanillaSparseMerkleTree {
 		let mut db = BTreeMap::new();
-		// NOTE: ZERO_TREE was created with Poseidon with parameters:
-		// width 6, Exponentiation3
-		// Non-membership proofs are not possible if tree uses
-		// different parameters or different hasher altogether
+		let zero_tree = gen_zero_tree(hash_params.width, &hash_params.sbox);
 		for i in 1..=depth {
-			let prev = Scalar::from_bytes_mod_order(ZERO_TREE[i - 1]);
-			let curr = ZERO_TREE[i];
+			let prev = Scalar::from_bytes_mod_order(zero_tree[i - 1]);
+			let curr = zero_tree[i];
 
 			db.insert(curr, (prev, prev));
 		}
 
-		let root = Scalar::from_bytes_mod_order(ZERO_TREE[depth]);
+		let root = Scalar::from_bytes_mod_order(zero_tree[depth]);
 
 		VanillaSparseMerkleTree {
 			depth,
@@ -309,10 +306,6 @@ pub fn vanilla_merkle_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 			cs.multiply(one_minus_leaf_side, proof_nodes[i].variable.into());
 		let right = right_1 + right_2;
 
-		assert!(
-			poseidon_params.sbox == PoseidonSbox::Inverse,
-			"Assert sbox is inverse"
-		);
 		prev_hash = Poseidon_hash_2_constraints::<CS>(
 			cs,
 			left,
@@ -325,4 +318,21 @@ pub fn vanilla_merkle_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 	constrain_lc_with_scalar::<CS>(cs, prev_hash, root);
 
 	Ok(())
+}
+
+pub fn gen_zero_tree(width: usize, sbox: &PoseidonSbox) -> Vec<[u8; 32]> {
+	match sbox {
+		PoseidonSbox::Exponentiation3 => match width {
+			6 => smt::x3_6::ZERO_TREE.to_vec(),
+			_ => panic!("Specified width not supported"),
+		},
+		PoseidonSbox::Exponentiation5 => match width {
+			6 => smt::x5_6::ZERO_TREE.to_vec(),
+			_ => panic!("Specified width not supported"),
+		},
+		PoseidonSbox::Inverse => match width {
+			6 => smt::inverse_6::ZERO_TREE.to_vec(),
+			_ => panic!("Specified width not supported"),
+		},
+	}
 }

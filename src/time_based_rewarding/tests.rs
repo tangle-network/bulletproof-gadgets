@@ -134,7 +134,7 @@ fn test_time_based_reward_gadget_verification() {
 	);
 
 	let pc_gens = PedersenGens::default();
-	let bp_gens = BulletproofGens::new(40960, 1);
+	let bp_gens = BulletproofGens::new(16500, 1);
 
 	let (proof, commitments) = {
 		let mut prover_transcript = Transcript::new(b"RewardTree");

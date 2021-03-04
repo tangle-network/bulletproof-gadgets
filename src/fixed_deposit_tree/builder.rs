@@ -190,33 +190,33 @@ impl FixedDepositTreeBuilder {
 		}
 	}
 
-	pub fn depth(&mut self, depth: usize) -> &mut Self {
+	pub fn depth(mut self, depth: usize) -> Self {
 		self.depth = Some(depth);
 		self
 	}
 
-	pub fn hash_params(&mut self, hash_params: Poseidon) -> &mut Self {
+	pub fn hash_params(mut self, hash_params: Poseidon) -> Self {
 		self.hash_params = Some(hash_params);
 		self
 	}
 
-	pub fn merkle_tree(&mut self, tree: VanillaSparseMerkleTree) -> &mut Self {
+	pub fn merkle_tree(mut self, tree: VanillaSparseMerkleTree) -> Self {
 		self.tree = Some(tree);
 		self
 	}
 
-	pub fn build(&self) -> FixedDepositTree {
+	pub fn build(self) -> FixedDepositTree {
 		let depth = self.depth.unwrap_or(DEFAULT_TREE_DEPTH);
-		let hash_params = self.hash_params.clone().unwrap_or_else(|| {
-			let width = 6;
-			PoseidonBuilder::new(width)
-				.sbox(PoseidonSbox::Inverse)
-				.build()
-		});
+		let hash_params = self.hash_params.unwrap_or(
+			PoseidonBuilder::new(6).sbox(PoseidonSbox::Inverse).build(),
+		);
 		let secrets = BTreeMap::new();
-		let tree = self.tree.clone().unwrap_or_else(|| {
-			SparseMerkleTreeBuilder::new().depth(depth).build()
-		});
+		let tree = self.tree.unwrap_or(
+			SparseMerkleTreeBuilder::new()
+				.depth(depth)
+				.hash_params(hash_params.clone())
+				.build(),
+		);
 
 		FixedDepositTree {
 			secrets,

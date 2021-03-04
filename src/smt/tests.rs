@@ -84,7 +84,7 @@ fn test_vsmt_verif() {
 	assert!(tree.verify_proof(k, k, &merkle_proof_vec, Some(&tree.root)));
 
 	let pc_gens = PedersenGens::default();
-	let bp_gens = BulletproofGens::new(40960, 1);
+	let bp_gens = BulletproofGens::new(16500, 1);
 
 	let (proof, commitments) = {
 		let mut prover_transcript = Transcript::new(b"VSMT");
@@ -237,7 +237,7 @@ fn test_vsmt_prove_verif() {
 	assert!(tree.verify_proof(k, k, &merkle_proof_vec, Some(&tree.root)));
 
 	let pc_gens = PedersenGens::default();
-	let bp_gens = BulletproofGens::new(40960, 1);
+	let bp_gens = BulletproofGens::new(16500, 1);
 	let mut prover_transcript = Transcript::new(b"VSMT");
 	let prover = Prover::new(&pc_gens, &mut prover_transcript);
 

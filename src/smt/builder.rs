@@ -26,30 +26,29 @@ impl SparseMerkleTreeBuilder {
 		}
 	}
 
-	pub fn depth(&mut self, depth: usize) -> &mut Self {
+	pub fn depth(mut self, depth: usize) -> Self {
 		self.depth = Some(depth);
 		self
 	}
 
-	pub fn hash_params(&mut self, hash_params: Poseidon) -> &mut Self {
+	pub fn hash_params(mut self, hash_params: Poseidon) -> Self {
 		self.hash_params = Some(hash_params);
 		self
 	}
 
-	pub fn root(&mut self, root: Scalar) -> &mut Self {
+	pub fn root(mut self, root: Scalar) -> Self {
 		self.root = Some(root);
 		self
 	}
 
-	pub fn build(&self) -> VanillaSparseMerkleTree {
-		let depth = self.depth.unwrap_or_else(|| DEFAULT_TREE_DEPTH);
-		let hash_params = self.hash_params.clone().unwrap_or_else(|| {
-			let width = 6;
-			PoseidonBuilder::new(width)
+	pub fn build(self) -> VanillaSparseMerkleTree {
+		let depth = self.depth.unwrap_or(DEFAULT_TREE_DEPTH);
+		let hash_params = self.hash_params.unwrap_or(
+			PoseidonBuilder::new(6)
 				.sbox(PoseidonSbox::Inverse)
-				.bulletproof_gens(BulletproofGens::new(40096, 1))
-				.build()
-		});
+				.bulletproof_gens(BulletproofGens::new(4096, 1))
+				.build(),
+		);
 		VanillaSparseMerkleTree::new(hash_params, depth)
 	}
 }

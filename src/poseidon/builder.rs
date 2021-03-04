@@ -96,18 +96,18 @@ impl PoseidonBuilder {
 	}
 
 	pub fn num_rounds(
-		&mut self,
+		mut self,
 		full_b: usize,
 		full_e: usize,
 		partial: usize,
-	) -> &mut Self {
+	) -> Self {
 		self.full_rounds_beginning = Some(full_b);
 		self.full_rounds_end = Some(full_e);
 		self.partial_rounds = Some(partial);
 		self
 	}
 
-	pub fn round_keys_hex(&mut self, r_keys: Vec<String>) -> &mut Self {
+	pub fn round_keys_hex(mut self, r_keys: Vec<String>) -> Self {
 		let cap = if self.full_rounds_beginning.is_some()
 			&& self.full_rounds_end.is_some()
 			&& self.partial_rounds.is_some()
@@ -183,12 +183,9 @@ impl PoseidonBuilder {
 			self.full_rounds_beginning.unwrap_or(default_partial_rounds);
 
 		// default pedersen genrators
-		let pc_gens = self.pc_gens.unwrap_or_else(PedersenGens::default);
+		let pc_gens = self.pc_gens.unwrap_or(PedersenGens::default());
 		// default 4096 might not be enough
-		let bp_gens = self
-			.bp_gens
-			.clone()
-			.unwrap_or_else(|| BulletproofGens::new(4096, 1));
+		let bp_gens = self.bp_gens.unwrap_or(BulletproofGens::new(4096, 1));
 
 		let transcript_label =
 			self.transcript_label.unwrap_or(b"test_poseidon_transcript");
@@ -287,7 +284,7 @@ pub fn gen_round_params(
 			7 => params::X3_7,
 			8 => params::X3_8,
 			9 => params::X3_9,
-			_ => params::X3_4,
+			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Exponentiation5 => match width {
 			2 => params::X5_2,
@@ -298,7 +295,7 @@ pub fn gen_round_params(
 			7 => params::X5_7,
 			8 => params::X5_8,
 			9 => params::X5_9,
-			_ => params::X5_4,
+			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Inverse => match width {
 			2 => params::INVERSE_2,
@@ -309,7 +306,7 @@ pub fn gen_round_params(
 			7 => params::INVERSE_7,
 			8 => params::INVERSE_8,
 			9 => params::INVERSE_9,
-			_ => params::INVERSE_4,
+			_ => panic!("Specified width not supported"),
 		},
 	};
 	let full_part = params[0] / 2;
@@ -328,7 +325,7 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 			7 => poseidon::x3_7::ROUND_CONSTS.to_vec(),
 			8 => poseidon::x3_8::ROUND_CONSTS.to_vec(),
 			9 => poseidon::x3_9::ROUND_CONSTS.to_vec(),
-			_ => poseidon::x3_4::ROUND_CONSTS.to_vec(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Exponentiation5 => match width {
@@ -340,7 +337,7 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 			7 => poseidon::x5_7::ROUND_CONSTS.to_vec(),
 			8 => poseidon::x5_8::ROUND_CONSTS.to_vec(),
 			9 => poseidon::x5_9::ROUND_CONSTS.to_vec(),
-			_ => poseidon::x5_4::ROUND_CONSTS.to_vec(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Inverse => match width {
@@ -352,7 +349,7 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 			7 => poseidon::inverse_7::ROUND_CONSTS.to_vec(),
 			8 => poseidon::inverse_8::ROUND_CONSTS.to_vec(),
 			9 => poseidon::inverse_9::ROUND_CONSTS.to_vec(),
-			_ => poseidon::inverse_4::ROUND_CONSTS.to_vec(),
+			_ => panic!("Specified width not supported"),
 		},
 	};
 
@@ -409,11 +406,7 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
-			_ => poseidon::x3_4::MDS_ENTRIES
-				.to_vec()
-				.iter()
-				.map(|x| x.to_vec())
-				.collect(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Exponentiation5 => match width {
@@ -457,11 +450,7 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
-			_ => poseidon::x5_4::MDS_ENTRIES
-				.to_vec()
-				.iter()
-				.map(|x| x.to_vec())
-				.collect(),
+			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Inverse => match width {
@@ -505,11 +494,7 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
-			_ => poseidon::inverse_4::MDS_ENTRIES
-				.to_vec()
-				.iter()
-				.map(|x| x.to_vec())
-				.collect(),
+			_ => panic!("Specified width not supported"),
 		},
 	};
 
