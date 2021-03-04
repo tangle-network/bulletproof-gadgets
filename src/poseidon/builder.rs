@@ -96,18 +96,18 @@ impl PoseidonBuilder {
 	}
 
 	pub fn num_rounds(
-		&mut self,
+		mut self,
 		full_b: usize,
 		full_e: usize,
 		partial: usize,
-	) -> &mut Self {
+	) -> Self {
 		self.full_rounds_beginning = Some(full_b);
 		self.full_rounds_end = Some(full_e);
 		self.partial_rounds = Some(partial);
 		self
 	}
 
-	pub fn round_keys_hex(&mut self, r_keys: Vec<String>) -> &mut Self {
+	pub fn round_keys_hex(mut self, r_keys: Vec<String>) -> Self {
 		let cap = if self.full_rounds_beginning.is_some()
 			&& self.full_rounds_end.is_some()
 			&& self.partial_rounds.is_some()
@@ -183,12 +183,9 @@ impl PoseidonBuilder {
 			self.full_rounds_beginning.unwrap_or(default_partial_rounds);
 
 		// default pedersen genrators
-		let pc_gens = self.pc_gens.unwrap_or_else(PedersenGens::default);
+		let pc_gens = self.pc_gens.unwrap_or(PedersenGens::default());
 		// default 4096 might not be enough
-		let bp_gens = self
-			.bp_gens
-			.clone()
-			.unwrap_or_else(|| BulletproofGens::new(4096, 1));
+		let bp_gens = self.bp_gens.unwrap_or(BulletproofGens::new(4096, 1));
 
 		let transcript_label =
 			self.transcript_label.unwrap_or(b"test_poseidon_transcript");
