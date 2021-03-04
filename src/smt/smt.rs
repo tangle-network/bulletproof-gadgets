@@ -306,10 +306,6 @@ pub fn vanilla_merkle_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 			cs.multiply(one_minus_leaf_side, proof_nodes[i].variable.into());
 		let right = right_1 + right_2;
 
-		assert!(
-			poseidon_params.sbox == PoseidonSbox::Inverse,
-			"Assert sbox is inverse"
-		);
 		prev_hash = Poseidon_hash_2_constraints::<CS>(
 			cs,
 			left,
