@@ -335,6 +335,14 @@ fn test_poseidon_perm_inverse_sbox() {
 }
 
 #[test]
+fn test_poseidon_perm_seventeenth_sbox() {
+	poseidon_perm(
+		get_poseidon_params(Some(PoseidonSbox::Exponentiation17)),
+		b"Poseidon_perm_seventeenth",
+	);
+}
+
+#[test]
 fn test_poseidon_hash_2_cube_sbox() {
 	poseidon_hash_2(
 		get_poseidon_params(Some(PoseidonSbox::Exponentiation3)),
@@ -351,6 +359,14 @@ fn test_poseidon_hash_2_inverse_sbox() {
 }
 
 #[test]
+fn test_poseidon_hash_2_seventeenth_sbox() {
+	poseidon_hash_2(
+		get_poseidon_params(Some(PoseidonSbox::Exponentiation17)),
+		b"Poseidon_hash_2_seventeenth",
+	);
+}
+
+#[test]
 fn test_poseidon_hash_4_cube_sbox() {
 	poseidon_hash_4(
 		get_poseidon_params(Some(PoseidonSbox::Exponentiation3)),
@@ -363,5 +379,13 @@ fn test_poseidon_hash_4_inverse_sbox() {
 	poseidon_hash_4(
 		get_poseidon_params(Some(PoseidonSbox::Inverse)),
 		b"Poseidon_hash_2_inverse",
+	);
+}
+
+#[test]
+fn test_poseidon_hash_4_seventeenth_sbox() {
+	poseidon_hash_4(
+		get_poseidon_params(Some(PoseidonSbox::Exponentiation17)),
+		b"Poseidon_hash_2_seventeenth",
 	);
 }
