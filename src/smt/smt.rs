@@ -330,6 +330,10 @@ pub fn gen_zero_tree(width: usize, sbox: &PoseidonSbox) -> Vec<[u8; 32]> {
 			6 => smt::x5_6::ZERO_TREE.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
+		PoseidonSbox::Exponentiation17 => match width {
+			6 => smt::x17_6::ZERO_TREE.to_vec(),
+			_ => panic!("Specified width not supported"),
+		},
 		PoseidonSbox::Inverse => match width {
 			6 => smt::inverse_6::ZERO_TREE.to_vec(),
 			_ => panic!("Specified width not supported"),

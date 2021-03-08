@@ -17,6 +17,15 @@ pub mod x5_7;
 pub mod x5_8;
 pub mod x5_9;
 
+pub mod x17_2;
+pub mod x17_3;
+pub mod x17_4;
+pub mod x17_5;
+pub mod x17_6;
+pub mod x17_7;
+pub mod x17_8;
+pub mod x17_9;
+
 pub mod inverse_2;
 pub mod inverse_3;
 pub mod inverse_4;

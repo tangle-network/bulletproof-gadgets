@@ -297,6 +297,17 @@ pub fn gen_round_params(
 			9 => params::X5_9,
 			_ => panic!("Specified width not supported"),
 		},
+		PoseidonSbox::Exponentiation17 => match width {
+			2 => params::X17_2,
+			3 => params::X17_3,
+			4 => params::X17_4,
+			5 => params::X17_5,
+			6 => params::X17_6,
+			7 => params::X17_7,
+			8 => params::X17_8,
+			9 => params::X17_9,
+			_ => panic!("Specified width not supported"),
+		},
 		PoseidonSbox::Inverse => match width {
 			2 => params::INVERSE_2,
 			3 => params::INVERSE_3,
@@ -337,6 +348,18 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 			7 => poseidon::x5_7::ROUND_CONSTS.to_vec(),
 			8 => poseidon::x5_8::ROUND_CONSTS.to_vec(),
 			9 => poseidon::x5_9::ROUND_CONSTS.to_vec(),
+			_ => panic!("Specified width not supported"),
+		},
+
+		PoseidonSbox::Exponentiation17 => match width {
+			2 => poseidon::x17_2::ROUND_CONSTS.to_vec(),
+			3 => poseidon::x17_3::ROUND_CONSTS.to_vec(),
+			4 => poseidon::x17_4::ROUND_CONSTS.to_vec(),
+			5 => poseidon::x17_5::ROUND_CONSTS.to_vec(),
+			6 => poseidon::x17_6::ROUND_CONSTS.to_vec(),
+			7 => poseidon::x17_7::ROUND_CONSTS.to_vec(),
+			8 => poseidon::x17_8::ROUND_CONSTS.to_vec(),
+			9 => poseidon::x17_9::ROUND_CONSTS.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
 
@@ -446,6 +469,50 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 				.map(|x| x.to_vec())
 				.collect(),
 			9 => poseidon::x5_9::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			_ => panic!("Specified width not supported"),
+		},
+
+		PoseidonSbox::Exponentiation17 => match width {
+			2 => poseidon::x17_2::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			3 => poseidon::x17_3::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			4 => poseidon::x17_4::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			5 => poseidon::x17_5::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			6 => poseidon::x17_6::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			7 => poseidon::x17_7::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			8 => poseidon::x17_8::MDS_ENTRIES
+				.to_vec()
+				.iter()
+				.map(|x| x.to_vec())
+				.collect(),
+			9 => poseidon::x17_9::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
