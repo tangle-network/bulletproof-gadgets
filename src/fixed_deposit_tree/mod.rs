@@ -60,3 +60,37 @@ pub fn fixed_deposit_tree_verif_gadget<CS: ConstraintSystem>(
 	)?;
 	Ok(())
 }
+
+pub fn mixer_verif_gadget<CS: ConstraintSystem>(
+	cs: &mut CS,
+	relayer: &Scalar,
+	recipient: &Scalar,
+	depth: usize,
+	root: &Scalar,
+	nullifier_hash: &Scalar,
+	r: AllocatedScalar,
+	nullifier: AllocatedScalar,
+	leaf_val: AllocatedScalar,
+	leaf_index_bits: Vec<AllocatedScalar>,
+	proof_nodes: Vec<AllocatedScalar>,
+	statics: Vec<AllocatedScalar>,
+	poseidon_params: &Poseidon,
+) -> Result<(), R1CSError> {
+	fixed_deposit_tree_verif_gadget(
+		cs,
+		depth,
+		root,
+		nullifier_hash,
+		r,
+		nullifier,
+		leaf_val,
+		leaf_index_bits,
+		proof_nodes,
+		statics,
+		poseidon_params,
+	)?;
+	// hidden signals for relayer and recipient commitments
+	let (_, _, _) = cs.multiply(relayer.clone().into(), relayer.clone().into());
+	let (_, _, _) = cs.multiply(recipient.clone().into(), recipient.clone().into());
+	Ok(())
+}
