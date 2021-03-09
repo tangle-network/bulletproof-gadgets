@@ -28,6 +28,11 @@ pub fn generate_zero_trees() {
 	);
 	write_zero_tree(
 		width,
+		&PoseidonSbox::Exponentiation17,
+		format!("{}/x17_{}.rs", base, width),
+	);
+	write_zero_tree(
+		width,
 		&PoseidonSbox::Inverse,
 		format!("{}/inverse_{}.rs", base, width),
 	);

@@ -16,6 +16,15 @@ pub const X5_7: [usize; 4] = [8, 63, 113, 28815];
 pub const X5_8: [usize; 4] = [8, 64, 121, 30855];
 pub const X5_9: [usize; 4] = [8, 63, 129, 32895];
 
+pub const X17_2: [usize; 4] = [8, 32, 47, 11985];
+pub const X17_3: [usize; 4] = [8, 33, 55, 14025];
+pub const X17_4: [usize; 4] = [8, 32, 63, 16065];
+pub const X17_5: [usize; 4] = [8, 35, 71, 18105];
+pub const X17_6: [usize; 4] = [8, 36, 79, 20145];
+pub const X17_7: [usize; 4] = [8, 35, 87, 22185];
+pub const X17_8: [usize; 4] = [8, 32, 95, 24225];
+pub const X17_9: [usize; 4] = [8, 36, 103, 26265];
+
 pub const INVERSE_2: [usize; 4] = [8, 66, 81, 20655];
 pub const INVERSE_3: [usize; 4] = [8, 63, 87, 22185];
 pub const INVERSE_4: [usize; 4] = [8, 60, 92, 23460];

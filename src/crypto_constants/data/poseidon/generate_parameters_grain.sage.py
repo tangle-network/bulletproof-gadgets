@@ -112,7 +112,7 @@ def generate_constants(field, n, t, R_F, R_P, prime_number):
 def print_round_constants(round_constants, n, field):
     hex_length = int(ceil(float(n) / _sage_const_4 )) + _sage_const_2  # +2 for "0x"
     arr = ["{0:#0{1}x}".format(entry, hex_length) for entry in round_constants]
-    print("pub const ROUND_CONSTS: [&str; {0}] = {1}".format(len(arr), arr))
+    print("pub const ROUND_CONSTS: [&str; {0}] = {1};".format(len(arr), arr))
 
 def create_mds_p(n, t):
     M = matrix(F, t, t)
@@ -316,7 +316,7 @@ def print_linear_layer(M, n, t):
         if i < (t-_sage_const_1 ):
             matrix_string += ","
     matrix_string += "]"
-    print("pub const MDS_ENTRIES: [[&str; {0}]; {0}] = {1}".format(t, matrix_string))
+    print("pub const MDS_ENTRIES: [[&str; {0}]; {0}] = {1};".format(t, matrix_string))
 
 # Init
 init_generator(FIELD, SBOX, FIELD_SIZE, NUM_CELLS, R_F_FIXED, R_P_FIXED)

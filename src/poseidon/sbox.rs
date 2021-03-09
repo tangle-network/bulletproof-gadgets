@@ -12,6 +12,7 @@ use curve25519_dalek::scalar::Scalar;
 pub enum PoseidonSbox {
 	Exponentiation3,
 	Exponentiation5,
+	Exponentiation17,
 	Inverse,
 }
 
@@ -22,6 +23,13 @@ impl PoseidonSbox {
 			PoseidonSbox::Exponentiation5 => {
 				let sqr = elem * elem;
 				(sqr * sqr) * elem
+			},
+			PoseidonSbox::Exponentiation17 => {
+				let sqr = elem * elem;
+				let cube = sqr * sqr;
+				let eighth = cube * cube;
+				let sixteenth = eighth * eighth;
+				sixteenth * elem
 			},
 			PoseidonSbox::Inverse => elem.invert(),
 		}
@@ -42,6 +50,9 @@ impl PoseidonSbox {
 			},
 			PoseidonSbox::Inverse => {
 				Self::synthesize_inverse_sbox(cs, input_var, round_key)
+			},
+			PoseidonSbox::Exponentiation17 => {
+				Self::synthesize_exp17_sbox(cs, input_var, round_key)
 			},
 		}
 	}
@@ -69,6 +80,20 @@ impl PoseidonSbox {
 		let (_, _, fourth) = cs.multiply(sqr.into(), sqr.into());
 		let (_, _, fifth) = cs.multiply(fourth.into(), i.into());
 		Ok(fifth)
+	}
+
+	fn synthesize_exp17_sbox<CS: ConstraintSystem>(
+		cs: &mut CS,
+		input_var: LinearCombination,
+		round_key: Scalar,
+	) -> Result<Variable, R1CSError> {
+		let inp_plus_const: LinearCombination = input_var + round_key;
+		let (i, _, sqr) = cs.multiply(inp_plus_const.clone(), inp_plus_const);
+		let (_, _, cube) = cs.multiply(sqr.into(), sqr.into());
+		let (_, _, eight) = cs.multiply(cube.into(), cube.into());
+		let (_, _, sixteenth) = cs.multiply(eight.into(), eight.into());
+		let (_, _, seventeenth) = cs.multiply(sixteenth.into(), i.into());
+		Ok(seventeenth)
 	}
 
 	// Allocate variables in circuit and enforce constraints when Sbox as
