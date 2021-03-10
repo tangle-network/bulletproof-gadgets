@@ -1,5 +1,5 @@
 use crate::{
-	fixed_deposit_tree::fixed_deposit_tree_verif_gadget,
+	fixed_deposit_tree::mixer_verif_gadget,
 	poseidon::{
 		allocate_statics_for_prover, builder::Poseidon, sbox::PoseidonSbox,
 		PoseidonBuilder, Poseidon_hash_2,
@@ -74,6 +74,8 @@ impl FixedDepositTree {
 		&self,
 		root: Scalar,
 		leaf: Scalar,
+		recipient: Scalar,
+		relayer: Scalar,
 		bp_gens: &BulletproofGens,
 		mut prover: Prover,
 	) -> (
@@ -148,8 +150,10 @@ impl FixedDepositTree {
 		let num_statics = 4;
 		let statics = allocate_statics_for_prover(&mut prover, num_statics);
 
-		assert!(fixed_deposit_tree_verif_gadget(
+		assert!(mixer_verif_gadget(
 			&mut prover,
+			&recipient,
+			&relayer,
 			self.tree.depth,
 			&self.tree.root,
 			&nullifier_hash,
