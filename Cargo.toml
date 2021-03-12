@@ -32,9 +32,8 @@ default-features = false
 features = ["u64_backend", "alloc"]
 
 [dependencies.bulletproofs]
-branch = "main"
 version = "2.0.0"
-git = "https://github.com/edgeware-builders/bulletproofs"
+package = "webb-bulletproofs"
 default-features = false
 features = ["yoloproofs"]
 
