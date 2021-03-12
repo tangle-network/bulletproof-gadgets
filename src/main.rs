@@ -1,8 +1,6 @@
 extern crate bulletproofs_gadgets;
-use bulletproofs_gadgets::{
-	crypto_constants::utils::generate_zero_trees,
-	poseidon::{PoseidonBuilder, PoseidonSbox, Poseidon_hash_2},
-};
+#[cfg(feature = "std")]
+use bulletproofs_gadgets::crypto_constants::utils::generate_zero_trees;
 use curve25519_dalek::scalar::Scalar;
 use std::{
 	env,
