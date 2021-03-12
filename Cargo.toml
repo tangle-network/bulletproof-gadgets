@@ -1,5 +1,5 @@
 [package]
-name = "curve25519-gadgets"
+name = "bulletproofs-gadgets"
 authors = ["Drew Stone <drew@commonwealth.im>"]
 description = "R1CS Gadgets for Curve25519"
 edition = "2018"
