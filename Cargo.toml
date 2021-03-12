@@ -1,6 +1,8 @@
 [package]
 name = "bulletproofs-gadgets"
-authors = ["Drew Stone <drew@commonwealth.im>"]
+authors = ["Drew Stone <drew@commonwealth.im>",
+           "Filip Lazovic <filip@commonwealth.im>",
+           "Shady Khalifa <shekohex@gmail.com>"]
 description = "R1CS Gadgets for Curve25519"
 edition = "2018"
 homepage = "https://substrate.dev"
