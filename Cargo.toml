@@ -1,6 +1,8 @@
 [package]
-name = "curve25519-gadgets"
-authors = ["Drew Stone <drew@commonwealth.im>"]
+name = "bulletproofs-gadgets"
+authors = ["Drew Stone <drew@commonwealth.im>",
+           "Filip Lazovic <filip@commonwealth.im>",
+           "Shady Khalifa <shekohex@gmail.com>"]
 description = "R1CS Gadgets for Curve25519"
 edition = "2018"
 homepage = "https://substrate.dev"
@@ -32,9 +34,8 @@ default-features = false
 features = ["u64_backend", "alloc"]
 
 [dependencies.bulletproofs]
-branch = "main"
 version = "2.0.0"
-git = "https://github.com/edgeware-builders/bulletproofs"
+package = "webb-bulletproofs"
 default-features = false
 features = ["yoloproofs"]
 

@@ -480,9 +480,16 @@ fn test_mixer_verif() {
 		)
 		.is_ok());
 
-		match verifier.verify_with_rng(&proof, &pc_gens, &bp_gens, &mut test_rng) {
-			Ok(_) => panic!("Test should not succeed with fake relayer and recipient"),
-			Err(_e) => { /* OK! */}
+		match verifier.verify_with_rng(
+			&proof,
+			&pc_gens,
+			&bp_gens,
+			&mut test_rng,
+		) {
+			Ok(_) => panic!(
+				"Test should not succeed with fake relayer and recipient"
+			),
+			Err(_e) => { /* OK! */ },
 		}
 		let end = start.elapsed();
 

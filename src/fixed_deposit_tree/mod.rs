@@ -91,6 +91,7 @@ pub fn mixer_verif_gadget<CS: ConstraintSystem>(
 	)?;
 	// hidden signals for relayer and recipient commitments
 	let (_, _, _) = cs.multiply(relayer.clone().into(), relayer.clone().into());
-	let (_, _, _) = cs.multiply(recipient.clone().into(), recipient.clone().into());
+	let (_, _, _) =
+		cs.multiply(recipient.clone().into(), recipient.clone().into());
 	Ok(())
 }
