@@ -155,7 +155,7 @@ fn test_vsmt_verif() {
 		let proof = prover.prove_with_rng(&bp_gens, &mut test_rng).unwrap();
 		let end = start.elapsed();
 
-		println!("Proving time is {:?}", end);
+		println!("Proving time is {:?}, sbox: {:?}", end, p_params.sbox);
 
 		(proof, (com_leaf, leaf_index_comms, proof_comms))
 	};
@@ -208,7 +208,7 @@ fn test_vsmt_verif() {
 		.is_ok());
 	let end = start.elapsed();
 
-	println!("Verification time is {:?}", end);
+	println!("Verification time is {:?}, sbox: {:?}", end, p_params.sbox);
 }
 
 #[test]
@@ -292,5 +292,5 @@ fn test_vsmt_prove_verif() {
 		.is_ok());
 	let end = start.elapsed();
 
-	println!("Verification time is {:?}", end);
+	println!("Verification time is {:?}, sbox: {:?}", end, p_params.sbox);
 }
