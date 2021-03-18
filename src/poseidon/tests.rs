@@ -59,6 +59,8 @@ fn poseidon_perm(s_params: Poseidon, transcript_label: &'static [u8]) {
 			});
 		}
 
+		let start = Instant::now();
+
 		assert!(Poseidon_permutation_gadget(
 			&mut prover,
 			allocs,
@@ -73,6 +75,9 @@ fn poseidon_perm(s_params: Poseidon, transcript_label: &'static [u8]) {
 			&prover.num_constraints(),
 			&prover.num_multipliers()
 		);
+
+		let end = start.elapsed();
+		println!("Proving time is {:?}, Sbox: {:?}", end, s_params.sbox);
 
 		let proof = prover.prove_with_rng(&bp_gens, &mut test_rng).unwrap();
 		(proof, comms)
@@ -90,6 +95,7 @@ fn poseidon_perm(s_params: Poseidon, transcript_label: &'static [u8]) {
 			assignment: None,
 		});
 	}
+	let start = Instant::now();
 	assert!(Poseidon_permutation_gadget(
 		&mut verifier,
 		allocs,
@@ -97,6 +103,10 @@ fn poseidon_perm(s_params: Poseidon, transcript_label: &'static [u8]) {
 		&expected_output
 	)
 	.is_ok());
+
+	let end = start.elapsed();
+
+	println!("Verification time is {:?}, Sbox: {:?}", end, s_params.sbox);
 
 	assert!(verifier
 		.verify_with_rng(&proof, &pc_gens, &bp_gens, &mut test_rng)
@@ -111,9 +121,10 @@ fn poseidon_hash_2(s_params: Poseidon, transcript_label: &'static [u8]) {
 	let mut test_rng = OsRng::default();
 	let xl = Scalar::random(&mut test_rng);
 	let xr = Scalar::random(&mut test_rng);
+	let start = Instant::now();
 	let expected_output = Poseidon_hash_2(xl, xr, &s_params);
-
-	// println!("Input:\n");
+	let end = start.elapsed();
+	println!("Duration: {:?}, Sbox: {:?}", end, s_params.sbox);
 	// println!("xl={:?}", &xl);
 	// println!("xr={:?}", &xr);
 	// println!("Expected output:\n");
@@ -170,7 +181,7 @@ fn poseidon_hash_2(s_params: Poseidon, transcript_label: &'static [u8]) {
 
 		let end = start.elapsed();
 
-		println!("Proving time is {:?}", end);
+		println!("Proving time is {:?}, Sbox: {:?}", end, s_params.sbox);
 		(proof, comms)
 	};
 
@@ -210,7 +221,7 @@ fn poseidon_hash_2(s_params: Poseidon, transcript_label: &'static [u8]) {
 		.is_ok());
 	let end = start.elapsed();
 
-	println!("Verification time is {:?}", end);
+	println!("Verification time is {:?}, Sbox: {:?}", end, s_params.sbox);
 }
 
 #[cfg(feature = "std")]
@@ -277,7 +288,7 @@ fn poseidon_hash_4(s_params: Poseidon, transcript_label: &'static [u8]) {
 
 		let end = start.elapsed();
 
-		println!("Proving time is {:?}", end);
+		println!("Proving time is {:?}, Sbox: {:?}", end, s_params.sbox);
 		(proof, comms)
 	};
 
@@ -315,7 +326,7 @@ fn poseidon_hash_4(s_params: Poseidon, transcript_label: &'static [u8]) {
 		.is_ok());
 	let end = start.elapsed();
 
-	println!("Verification time is {:?}", end);
+	println!("Verification time is {:?}, Sbox: {:?}", end, s_params.sbox);
 }
 
 #[test]
