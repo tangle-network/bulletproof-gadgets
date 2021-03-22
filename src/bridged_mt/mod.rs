@@ -1,5 +1,6 @@
+use bulletproofs::r1cs::Variable;
 use crate::poseidon::Poseidon_hash_4_constraints;
-use crate::smt::vanilla_merkle_merkle_tree_verif_gadget;
+
 use bulletproofs::r1cs::LinearCombination;
 use crate::poseidon::Poseidon_hash_2_constraints;
 use crate::utils::constrain_lc_with_scalar;
@@ -7,7 +8,7 @@ use bulletproofs::r1cs::ConstraintSystem;
 use crate::utils::AllocatedScalar;
 use crate::poseidon::builder::Poseidon;
 use bulletproofs::r1cs::R1CSError;
-use crate::fixed_deposit_tree::fixed_deposit_tree_verif_gadget;
+
 use curve25519_dalek::scalar::Scalar;
 
 mod test;
@@ -74,13 +75,13 @@ pub fn one_of_many_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 		)?;
 	}
 
-	// build the linear combination of (x - root) for each root
-	constrain_lc_with_scalar::<CS>(cs, prev_hash, root);
+	// TODO: build the linear combination of (x - root) for each root
+	constrain_lc_with_scalar::<CS>(cs, prev_hash, &roots[0]);
 
 	Ok(())
 }
 
-pub fn bridged_tree_verif_gadge<CS: ConstraintSystem>(
+pub fn bridged_tree_verif_gadget<CS: ConstraintSystem>(
 	cs: &mut CS,
 	depth: usize,
 	roots: &[Scalar],
@@ -116,10 +117,10 @@ pub fn bridged_tree_verif_gadge<CS: ConstraintSystem>(
 	constrain_lc_with_scalar::<CS>(cs, computed_nullifier_hash, &tx.sn);
 	// if all is successful, constrain gadget by merkle root construction with
 	// merkle proof path
-	vanilla_merkle_merkle_tree_verif_gadget(
+	one_of_many_merkle_tree_verif_gadget(
 		cs,
 		depth,
-		root,
+		roots,
 		tx.leaf_cm_val,
 		tx.leaf_index_bits,
 		tx.leaf_proof_nodes,
@@ -135,21 +136,16 @@ pub fn bridge_verif_gadget<CS: ConstraintSystem>(
 	relayer: &Scalar,
 	recipient: &Scalar,
 	depth: usize,
-	root: &Scalar,
+	roots: &[Scalar],
 	tx: BridgeTx,
 	statics: Vec<AllocatedScalar>,
 	poseidon_params: &Poseidon,
 ) -> Result<(), R1CSError> {
-	fixed_deposit_tree_verif_gadget(
+	bridged_tree_verif_gadget(
 		cs,
 		depth,
-		root,
-		&tx.sn, // nullifier_hash
-		tx.r,
-		tx.nullifier,
-		tx.leaf_cm_val,
-		tx.leaf_index_bits,
-		tx.leaf_proof_nodes,
+		roots,
+		tx,
 		statics,
 		poseidon_params,
 	)?;

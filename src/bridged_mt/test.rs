@@ -1,25 +1,15 @@
 
-use super::*;
+
 use crate::{
 	poseidon::{
-		allocate_statics_for_prover, allocate_statics_for_verifier,
 		sbox::PoseidonSbox, PoseidonBuilder, Poseidon_hash_2, Poseidon_hash_4,
 	},
-	smt::builder::{SparseMerkleTreeBuilder, DEFAULT_TREE_DEPTH},
-	time_based_rewarding::time_based_reward_verif_gadget,
-	utils::{get_bits, AllocatedScalar},
+	smt::builder::{SparseMerkleTreeBuilder},
 };
-use bulletproofs::{
-	r1cs::{Prover, Verifier},
-	BulletproofGens, PedersenGens,
-};
-use curve25519_dalek::scalar::Scalar;
-use merlin::Transcript;
-use rand_core::OsRng;
 
-// For benchmarking
-#[cfg(feature = "std")]
-use std::time::Instant;
+use curve25519_dalek::scalar::Scalar;
+
+use rand_core::OsRng;
 
 #[test]
 fn test_time_based_reward_gadget_verification() {
@@ -78,31 +68,12 @@ fn test_time_based_reward_gadget_verification() {
 	 * MAKE THE DESTINATION CHAIN TREE
 	 * - do a deposit at the leaf at index 7
 	 */
+	let mut destination_deposit_tree = SparseMerkleTreeBuilder::new()
+		.hash_params(p_params.clone())
+		.build();
+
 	for i in 1..=10 {
 		let index = Scalar::from(i as u32);
-		let s = if i == 7 { destination_expected_output } else { index };
-
-		destination_deposit_tree.update(index, s);
+		destination_deposit_tree.update(index, Scalar::random(&mut test_rng));
 	}
-
-	let mut destination_merkle_proof_vec = Vec::<Scalar>::new();
-	let mut destination_merkle_proof = Some(destination_merkle_proof_vec);
-	let k = Scalar::from(7u32);
-	assert_eq!(
-		destination_expected_output,
-		destination_deposit_tree.get(k, destination_deposit_tree.root, &mut destination_merkle_proof)
-	);
-	destination_merkle_proof_vec = destination_merkle_proof.unwrap();
-	assert!(destination_deposit_tree.verify_proof(
-		k,
-		destination_expected_output,
-		&destination_merkle_proof_vec,
-		None
-	));
-	assert!(destination_deposit_tree.verify_proof(
-		k,
-		destination_expected_output,
-		&destination_merkle_proof_vec,
-		Some(&destination_deposit_tree.root)
-	));
 }
