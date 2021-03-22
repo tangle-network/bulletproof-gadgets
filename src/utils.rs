@@ -90,6 +90,22 @@ pub fn constrain_lc_with_scalar<CS: ConstraintSystem>(
 	cs.constrain(lc - LinearCombination::from(*scalar));
 }
 
+/// Constrain a linear combination to be equal to one of many scalars
+pub fn constrain_lc_with_one_of_many_scalars<CS: ConstraintSystem>(
+	cs: &mut CS,
+	lc: LinearCombination,
+	scalars: &[Scalar],
+) {
+
+	let mut temp_lc: LinearCombination = LinearCombination::from(Scalar::one());
+	for i in 0..scalars.len() {
+		let exp: LinearCombination = lc - LinearCombination::from(scalars[i]);
+		temp_lc = temp_lc * exp.into();
+	}
+
+	cs.constrain(temp_lc.into());
+}
+
 /// Get a bit array of this scalar, LSB is first element of this array
 #[derive(Clone)]
 pub struct ScalarBits {
