@@ -81,7 +81,7 @@ pub fn one_of_many_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 			prev_hash.clone()
 		};
 		let one_minus_leaf_side: LinearCombination =
-			Variable::One() - leaf_index_bits[i].variable;
+			(Variable::One() - leaf_index_bits[i].variable).into();
 
 		let (_, _, left_1) =
 			cs.multiply(one_minus_leaf_side.clone(), leaf_val_lc.clone());
