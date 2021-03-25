@@ -1,10 +1,3 @@
-use crate::{
-	poseidon::{
-		sbox::PoseidonSbox, PoseidonBuilder, Poseidon_hash_2, Poseidon_hash_4,
-	},
-	smt::builder::SparseMerkleTreeBuilder,
-};
-
 use curve25519_dalek::scalar::Scalar;
 
 use rand_core::OsRng;

@@ -9,6 +9,7 @@ use bulletproofs::r1cs::{ConstraintSystem, LinearCombination, R1CSError};
 
 use curve25519_dalek::scalar::Scalar;
 
+#[test]
 mod test;
 pub mod util;
 
