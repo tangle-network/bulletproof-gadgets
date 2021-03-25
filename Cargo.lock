@@ -48,7 +48,7 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 
 [[package]]
 name = "bulletproofs-gadgets"
-version = "2.0.0"
+version = "2.1.0"
 dependencies = [
  "bencher",
  "curve25519-dalek",
