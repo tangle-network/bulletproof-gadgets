@@ -1,17 +1,16 @@
-use bulletproofs::r1cs::Variable;
 use crate::poseidon::Poseidon_hash_4_constraints;
+use bulletproofs::r1cs::Variable;
 
-use bulletproofs::r1cs::LinearCombination;
-use crate::poseidon::Poseidon_hash_2_constraints;
-use crate::utils::constrain_lc_with_scalar;
-use bulletproofs::r1cs::ConstraintSystem;
-use crate::utils::AllocatedScalar;
-use crate::poseidon::builder::Poseidon;
-use bulletproofs::r1cs::R1CSError;
+use crate::{
+	poseidon::{builder::Poseidon, Poseidon_hash_2_constraints},
+	utils::{constrain_lc_with_scalar, AllocatedScalar},
+};
+use bulletproofs::r1cs::{ConstraintSystem, LinearCombination, R1CSError};
 
 use curve25519_dalek::scalar::Scalar;
 
 mod test;
+pub mod util;
 
 #[derive(Debug, Clone)]
 pub struct BridgeTx {
@@ -21,9 +20,40 @@ pub struct BridgeTx {
 	leaf_cm_val: AllocatedScalar,
 	leaf_index_bits: Vec<AllocatedScalar>,
 	leaf_proof_nodes: Vec<AllocatedScalar>,
+	diff_vars: Vec<AllocatedScalar>,
 	// public
 	sn: Scalar,
 	chain_id: Scalar,
+}
+
+pub fn set_membership_verif_gadget<CS: ConstraintSystem>(
+	cs: &mut CS,
+	v: LinearCombination,
+	diff_vars: Vec<AllocatedScalar>,
+	set: &[Scalar],
+) -> Result<(), R1CSError> {
+	let set_length = set.len();
+	// Accumulates product of elements in `diff_vars`
+	let mut product: LinearCombination = Variable::One().into();
+
+	for i in 0..set_length {
+		// Since `diff_vars[i]` is `set[i] - v`, `diff_vars[i]` + `v` should be
+		// `set[i]`
+		constrain_lc_with_scalar::<CS>(
+			cs,
+			diff_vars[i].variable + v.clone(),
+			&Scalar::from(set[i]),
+		);
+
+		let (_, _, o) =
+			cs.multiply(product.clone(), diff_vars[i].variable.into());
+		product = o.into();
+	}
+
+	// Ensure product of elements if `diff_vars` is 0
+	cs.constrain(product);
+
+	Ok(())
 }
 
 /// left = (1-leaf_side) * leaf + (leaf_side * proof_node)
@@ -35,6 +65,7 @@ pub fn one_of_many_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 	leaf_val: AllocatedScalar,
 	leaf_index_bits: Vec<AllocatedScalar>,
 	proof_nodes: Vec<AllocatedScalar>,
+	diff_vars: Vec<AllocatedScalar>,
 	statics: Vec<AllocatedScalar>,
 	poseidon_params: &Poseidon,
 ) -> Result<(), R1CSError> {
@@ -75,8 +106,8 @@ pub fn one_of_many_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 		)?;
 	}
 
-	// TODO: build the linear combination of (x - root) for each root
-	constrain_lc_with_scalar::<CS>(cs, prev_hash, &roots[0]);
+	// verify that computed root is a member of a list of merkle roots
+	set_membership_verif_gadget(cs, prev_hash, diff_vars, roots)?;
 
 	Ok(())
 }
@@ -99,7 +130,7 @@ pub fn bridged_tree_verif_gadget<CS: ConstraintSystem>(
 			var_chain_id.into(),
 			tx.r.variable.into(),
 			tx.r.variable.into(),
-			tx.nullifier.variable.into()
+			tx.nullifier.variable.into(),
 		],
 		statics_lc.clone(),
 		poseidon_params,
@@ -124,6 +155,7 @@ pub fn bridged_tree_verif_gadget<CS: ConstraintSystem>(
 		tx.leaf_cm_val,
 		tx.leaf_index_bits,
 		tx.leaf_proof_nodes,
+		tx.diff_vars,
 		statics,
 		poseidon_params,
 	)?;
@@ -141,17 +173,11 @@ pub fn bridge_verif_gadget<CS: ConstraintSystem>(
 	statics: Vec<AllocatedScalar>,
 	poseidon_params: &Poseidon,
 ) -> Result<(), R1CSError> {
-	bridged_tree_verif_gadget(
-		cs,
-		depth,
-		roots,
-		tx,
-		statics,
-		poseidon_params,
-	)?;
+	bridged_tree_verif_gadget(cs, depth, roots, tx, statics, poseidon_params)?;
 	// hidden signals for fee relayer and recipient commitments
 	let (_, _, _) = cs.multiply(fee.clone().into(), fee.clone().into());
 	let (_, _, _) = cs.multiply(relayer.clone().into(), relayer.clone().into());
-	let (_, _, _) = cs.multiply(recipient.clone().into(), recipient.clone().into());
+	let (_, _, _) =
+		cs.multiply(recipient.clone().into(), recipient.clone().into());
 	Ok(())
 }

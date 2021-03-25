@@ -3,6 +3,7 @@
 #[macro_use]
 extern crate alloc;
 
+pub mod bridged_mt;
 pub mod crypto_constants;
 pub mod fixed_deposit_tree;
 pub mod poseidon;
@@ -12,4 +13,3 @@ pub mod transaction;
 pub mod utils;
 pub mod variable_deposit_tree;
 pub mod zero_nonzero;
-pub mod bridged_mt;
