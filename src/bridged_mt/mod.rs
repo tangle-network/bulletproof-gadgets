@@ -10,12 +10,14 @@ use bulletproofs::r1cs::{ConstraintSystem, LinearCombination, R1CSError};
 use curve25519_dalek::scalar::Scalar;
 
 #[cfg(test)]
-mod test;
-pub mod util;
+mod tests;
+
+pub mod setup;
 
 #[derive(Debug, Clone)]
 pub struct BridgeTx {
 	// private
+	rho: AllocatedScalar,
 	r: AllocatedScalar,
 	nullifier: AllocatedScalar,
 	leaf_cm_val: AllocatedScalar,
@@ -118,22 +120,28 @@ pub fn bridged_tree_verif_gadget<CS: ConstraintSystem>(
 	depth: usize,
 	roots: &[Scalar],
 	tx: BridgeTx,
-	statics: Vec<AllocatedScalar>,
+	statics_2: Vec<AllocatedScalar>,
+	statics_4: Vec<AllocatedScalar>,
 	poseidon_params: &Poseidon,
 ) -> Result<(), R1CSError> {
-	let statics_lc: Vec<LinearCombination> =
-		statics.iter().map(|s| s.variable.into()).collect();
+	let statics_2_lc: Vec<LinearCombination> =
+		statics_2.iter().map(|s| s.variable.into()).collect();
+	let statics_4_lc: Vec<LinearCombination> =
+		statics_4.iter().map(|s| s.variable.into()).collect();
+
 	// use hash constraints to generate leaf and constrain by passed in leaf
-	let (var_chain_id, _) = cs.allocate_single(Some(tx.chain_id))?;
+	// let (var_chain_id, _) = cs.allocate_single(Some(tx.chain_id))?;
+	let mut var_chain_id: LinearCombination = Variable::One().into();
+	var_chain_id = var_chain_id * tx.chain_id;
 	let leaf = Poseidon_hash_4_constraints::<CS>(
 		cs,
 		[
 			var_chain_id.into(),
-			tx.r.variable.into(),
+			tx.rho.variable.into(),
 			tx.r.variable.into(),
 			tx.nullifier.variable.into(),
 		],
-		statics_lc.clone(),
+		statics_4_lc.clone(),
 		poseidon_params,
 	)?;
 	let leaf_lc: LinearCombination = tx.leaf_cm_val.variable.into();
@@ -143,7 +151,7 @@ pub fn bridged_tree_verif_gadget<CS: ConstraintSystem>(
 		cs,
 		tx.nullifier.variable.into(),
 		tx.nullifier.variable.into(),
-		statics_lc,
+		statics_2_lc,
 		poseidon_params,
 	)?;
 	constrain_lc_with_scalar::<CS>(cs, computed_nullifier_hash, &tx.sn);
@@ -157,7 +165,7 @@ pub fn bridged_tree_verif_gadget<CS: ConstraintSystem>(
 		tx.leaf_index_bits,
 		tx.leaf_proof_nodes,
 		tx.diff_vars,
-		statics,
+		statics_2,
 		poseidon_params,
 	)?;
 	Ok(())
@@ -171,10 +179,11 @@ pub fn bridge_verif_gadget<CS: ConstraintSystem>(
 	depth: usize,
 	roots: &[Scalar],
 	tx: BridgeTx,
-	statics: Vec<AllocatedScalar>,
+	statics_2: Vec<AllocatedScalar>,
+	statics_4: Vec<AllocatedScalar>,
 	poseidon_params: &Poseidon,
 ) -> Result<(), R1CSError> {
-	bridged_tree_verif_gadget(cs, depth, roots, tx, statics, poseidon_params)?;
+	bridged_tree_verif_gadget(cs, depth, roots, tx, statics_2, statics_4, poseidon_params)?;
 	// hidden signals for fee relayer and recipient commitments
 	let (_, _, _) = cs.multiply(fee.clone().into(), fee.clone().into());
 	let (_, _, _) = cs.multiply(relayer.clone().into(), relayer.clone().into());

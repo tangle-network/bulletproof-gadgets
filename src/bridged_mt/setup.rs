@@ -19,14 +19,15 @@ use std::time::Instant;
 
 #[derive(Debug, Clone)]
 pub struct BridgeTxInputs {
-	r: Scalar,
-	nullifier: Scalar,
-	expected_output: Scalar,
-	index: Scalar,
-	merkle_proof_vec: Vec<Scalar>,
-	roots: Vec<Scalar>,
-	chain_id: Scalar,
-	sn: Scalar,
+	pub rho: Scalar,
+	pub r: Scalar,
+	pub nullifier: Scalar,
+	pub expected_output: Scalar,
+	pub index: Scalar,
+	pub merkle_proof_vec: Vec<Scalar>,
+	pub roots: Vec<Scalar>,
+	pub chain_id: Scalar,
+	pub sn: Scalar,
 }
 
 #[derive(Debug, Clone)]
@@ -37,7 +38,7 @@ pub struct BridgeTxComms {
 	diff_comms: Vec<CompressedRistretto>,
 }
 
-fn setup_prover<T: RngCore + CryptoRng>(
+pub fn setup_prover<T: RngCore + CryptoRng>(
 	tree: VanillaSparseMerkleTree,
 	inputs: BridgeTxInputs,
 	pc_gens: PedersenGens,
@@ -51,6 +52,14 @@ fn setup_prover<T: RngCore + CryptoRng>(
 
 		let mut input_comms = vec![];
 
+		let (com_input_rho, var_input_rho) =
+			prover.commit(inputs.rho.clone(), Scalar::random(&mut test_rng));
+		let alloc_input_rho = AllocatedScalar {
+			variable: var_input_rho,
+			assignment: Some(inputs.rho),
+		};
+		input_comms.push(com_input_rho);
+
 		let (com_input_r, var_input_r) =
 			prover.commit(inputs.r.clone(), Scalar::random(&mut test_rng));
 		let alloc_input_r = AllocatedScalar {
@@ -58,6 +67,7 @@ fn setup_prover<T: RngCore + CryptoRng>(
 			assignment: Some(inputs.r),
 		};
 		input_comms.push(com_input_r);
+
 		let (com_input_nullifier, var_input_nullifier) = prover
 			.commit(inputs.nullifier.clone(), Scalar::random(&mut test_rng));
 		let alloc_input_nullifier = AllocatedScalar {
@@ -124,6 +134,7 @@ fn setup_prover<T: RngCore + CryptoRng>(
 		}
 
 		let tx = BridgeTx {
+			rho: alloc_input_rho,
 			r: alloc_input_r,
 			nullifier: alloc_input_nullifier,
 			leaf_cm_val: alloc_leaf_val,
@@ -135,7 +146,10 @@ fn setup_prover<T: RngCore + CryptoRng>(
 		};
 
 		let num_statics = 4;
-		let statics = allocate_statics_for_prover(&mut prover, num_statics);
+		let statics_2 = allocate_statics_for_prover(&mut prover, num_statics);
+
+		let num_statics = 2;
+		let statics_4 = allocate_statics_for_prover(&mut prover, num_statics);
 
 		let start = Instant::now();
 		assert!(bridge_verif_gadget(
@@ -146,7 +160,8 @@ fn setup_prover<T: RngCore + CryptoRng>(
 			tree.depth,
 			&inputs.roots,
 			tx,
-			statics,
+			statics_2,
+			statics_4,
 			&p_params,
 		)
 		.is_ok());
@@ -177,7 +192,7 @@ fn setup_prover<T: RngCore + CryptoRng>(
 	(proof, commitments)
 }
 
-fn setup_verifier<T: RngCore + CryptoRng>(
+pub fn setup_verifier<T: RngCore + CryptoRng>(
 	proof: R1CSProof,
 	depth: usize,
 	roots: Vec<Scalar>,
@@ -191,18 +206,26 @@ fn setup_verifier<T: RngCore + CryptoRng>(
 ) {
 	let mut verifier_transcript = Transcript::new(b"BridgeGadget");
 	let mut verifier = Verifier::new(&mut verifier_transcript);
-	let r_val = verifier.commit(bridge_comms.input_comms[0]);
-	let nullifier_val = verifier.commit(bridge_comms.input_comms[1]);
+
+	let rho_val = verifier.commit(bridge_comms.input_comms[0]);
+	let rho_alloc = AllocatedScalar {
+		variable: rho_val,
+		assignment: None,
+	};
+
+	let r_val = verifier.commit(bridge_comms.input_comms[1]);
 	let r_alloc = AllocatedScalar {
 		variable: r_val,
 		assignment: None,
 	};
+
+	let nullifier_val = verifier.commit(bridge_comms.input_comms[2]);
 	let nullifier_alloc = AllocatedScalar {
 		variable: nullifier_val,
 		assignment: None,
 	};
 
-	let var_leaf = verifier.commit(bridge_comms.input_comms[2]);
+	let var_leaf = verifier.commit(bridge_comms.input_comms[3]);
 	let leaf_alloc_scalar = AllocatedScalar {
 		variable: var_leaf,
 		assignment: None,
@@ -239,6 +262,7 @@ fn setup_verifier<T: RngCore + CryptoRng>(
 
 	let tx = BridgeTx {
 		// private
+		rho: rho_alloc,
 		r: r_alloc,
 		nullifier: nullifier_alloc,
 		leaf_cm_val: leaf_alloc_scalar,
@@ -251,7 +275,11 @@ fn setup_verifier<T: RngCore + CryptoRng>(
 	};
 
 	let num_statics = 4;
-	let statics =
+	let statics_2 =
+		allocate_statics_for_verifier(&mut verifier, num_statics, &pc_gens);
+
+	let num_statics = 2;
+	let statics_4 =
 		allocate_statics_for_verifier(&mut verifier, num_statics, &pc_gens);
 
 	let start = Instant::now();
@@ -263,7 +291,8 @@ fn setup_verifier<T: RngCore + CryptoRng>(
 		depth,
 		&roots,
 		tx,
-		statics,
+		statics_2,
+		statics_4,
 		&p_params,
 	)
 	.is_ok());
