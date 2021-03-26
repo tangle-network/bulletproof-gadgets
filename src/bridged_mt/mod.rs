@@ -183,7 +183,15 @@ pub fn bridge_verif_gadget<CS: ConstraintSystem>(
 	statics_4: Vec<AllocatedScalar>,
 	poseidon_params: &Poseidon,
 ) -> Result<(), R1CSError> {
-	bridged_tree_verif_gadget(cs, depth, roots, tx, statics_2, statics_4, poseidon_params)?;
+	bridged_tree_verif_gadget(
+		cs,
+		depth,
+		roots,
+		tx,
+		statics_2,
+		statics_4,
+		poseidon_params,
+	)?;
 	// hidden signals for fee relayer and recipient commitments
 	let (_, _, _) = cs.multiply(fee.clone().into(), fee.clone().into());
 	let (_, _, _) = cs.multiply(relayer.clone().into(), relayer.clone().into());

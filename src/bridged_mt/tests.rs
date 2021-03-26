@@ -1,12 +1,11 @@
-use bulletproofs::{BulletproofGens, PedersenGens};
-use crate::bridged_mt::setup::{setup_prover, setup_verifier};
-use crate::bridged_mt::setup::BridgeTxInputs;
 use crate::{
+	bridged_mt::setup::{setup_prover, setup_verifier, BridgeTxInputs},
 	poseidon::{
 		sbox::PoseidonSbox, PoseidonBuilder, Poseidon_hash_2, Poseidon_hash_4,
 	},
 	smt::builder::SparseMerkleTreeBuilder,
 };
+use bulletproofs::{BulletproofGens, PedersenGens};
 
 use curve25519_dalek::scalar::Scalar;
 
@@ -90,10 +89,8 @@ fn test_bridged_mt_gadget_verification() {
 	let pc_gens = PedersenGens::default();
 	let bp_gens = BulletproofGens::new(16500, 1);
 	let depth = origin_deposit_tree.depth.clone();
-	/*
-	 * Build the Bridge TX
-	 * - Transfer tokens from origin deposit to destination chain
-	 */
+	// Build the Bridge TX
+	// - Transfer tokens from origin deposit to destination chain
 	let inputs = BridgeTxInputs {
 		rho: origin_rho,
 		r: origin_r,
@@ -101,10 +98,7 @@ fn test_bridged_mt_gadget_verification() {
 		expected_output: origin_expected_output,
 		index: origin_index,
 		merkle_proof_vec: origin_merkle_proof_vec,
-		roots: vec![
-			origin_deposit_tree.root,
-			destination_deposit_tree.root,
-		],
+		roots: vec![origin_deposit_tree.root, destination_deposit_tree.root],
 		chain_id: destination_chain,
 		sn: origin_nullifier_hash,
 	};
