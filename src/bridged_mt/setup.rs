@@ -251,7 +251,7 @@ pub fn setup_verifier<T: RngCore + CryptoRng>(
 
 	let mut diff_alloc_scalars: Vec<AllocatedScalar> = vec![];
 
-	for i in 1..roots.len() + 1 {
+	for i in 0..roots.len() {
 		let var_diff = verifier.commit(bridge_comms.diff_comms[i]);
 		let alloc_scal_diff = AllocatedScalar {
 			variable: var_diff,

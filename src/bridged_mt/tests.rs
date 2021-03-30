@@ -30,7 +30,7 @@ fn test_bridged_mt_gadget_verification() {
 	// we want to do a bridge transfer so we commit to a leaf with the
 	// destination_chain ID
 	let origin_expected_output = Poseidon_hash_4(
-		[destination_chain, origin_r, origin_r, origin_nullifier],
+		[destination_chain, origin_rho, origin_r, origin_nullifier],
 		&p_params,
 	);
 	let origin_nullifier_hash =
