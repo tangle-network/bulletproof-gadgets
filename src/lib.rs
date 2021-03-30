@@ -12,3 +12,4 @@ pub mod transaction;
 pub mod utils;
 pub mod variable_deposit_tree;
 pub mod zero_nonzero;
+pub mod bridged_mt;
