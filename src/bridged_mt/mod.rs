@@ -1,18 +1,16 @@
-use crate::poseidon::Poseidon_hash_4_constraints;
-use bulletproofs::r1cs::Variable;
-
 use crate::{
-	poseidon::{builder::Poseidon, Poseidon_hash_2_constraints},
+	poseidon::{builder::Poseidon, Poseidon_hash_2_constraints, Poseidon_hash_4_constraints},
 	utils::{constrain_lc_with_scalar, AllocatedScalar},
 };
-use bulletproofs::r1cs::{ConstraintSystem, LinearCombination, R1CSError};
-
+use bulletproofs::r1cs::{ConstraintSystem, LinearCombination, R1CSError, Variable};
+use alloc::vec::Vec;
 use curve25519_dalek::scalar::Scalar;
 
 #[cfg(test)]
 mod tests;
 
-pub mod setup;
+#[cfg(test)]
+mod setup;
 
 #[derive(Debug, Clone)]
 pub struct BridgeTx {
