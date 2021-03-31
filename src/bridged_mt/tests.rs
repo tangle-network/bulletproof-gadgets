@@ -19,6 +19,7 @@ fn test_bridged_mt_gadget_verification() {
 		.build();
 
 	let mut test_rng = OsRng::default();
+	// GOAL: To deposit on the ORIGIN and withdraw from the DESTINATION
 	let destination_chain = Scalar::from(2u32);
 
 	// MAKE THE ORIGIN CHAIN TREE
