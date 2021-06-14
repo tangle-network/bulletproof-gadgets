@@ -36,6 +36,8 @@ features = ["u64_backend", "alloc"]
 [dependencies.bulletproofs]
 version = "2.0.0"
 package = "webb-bulletproofs"
+git = "https://github.com/webb-tools/bulletproofs"
+branch = "pub-bp-gens"
 default-features = false
 features = ["yoloproofs"]
 
