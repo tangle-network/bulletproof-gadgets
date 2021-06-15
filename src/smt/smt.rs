@@ -18,8 +18,9 @@ use bulletproofs::{
 	BulletproofGens,
 };
 use curve25519_dalek::{ristretto::CompressedRistretto, scalar::Scalar};
-use rand_core::OsRng;
+use rand_chacha::ChaChaRng;
 use sp_std::collections::btree_map::BTreeMap;
+use rand_core::SeedableRng;
 
 pub type DBVal = (Scalar, Scalar);
 
@@ -204,7 +205,7 @@ impl VanillaSparseMerkleTree {
 			Vec<CompressedRistretto>,
 		),
 	) {
-		let mut test_rng: OsRng = OsRng::default();
+		let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 		let mut merkle_proof_vec = Vec::<Scalar>::new();
 		let mut merkle_proof = Some(merkle_proof_vec);
 		let k = self.leaf_indices.get(&leaf.to_bytes()).unwrap();

@@ -4,7 +4,8 @@ use bulletproofs::{
 	BulletproofGens, PedersenGens,
 };
 use merlin::Transcript;
-use rand_core::OsRng;
+use rand_core::SeedableRng;
+use rand_chacha::ChaChaRng;
 
 #[test]
 fn test_is_zero_non_zero() {
@@ -14,7 +15,7 @@ fn test_is_zero_non_zero() {
 	// To prove/verify value == 0, set y = 0 and inv = 0
 	// To prove/verify value != 0, set y = 1 and inv = value^-1
 
-	let mut rng = OsRng::default();
+	let mut rng = ChaChaRng::from_seed([1u8; 32]);
 
 	{
 		let _inv = 0;

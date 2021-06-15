@@ -9,7 +9,8 @@ use bulletproofs::{BulletproofGens, PedersenGens};
 
 use curve25519_dalek::scalar::Scalar;
 
-use rand_core::OsRng;
+use rand_core::SeedableRng;
+use rand_chacha::ChaChaRng;
 
 #[test]
 fn test_bridged_mt_gadget_verification() {
@@ -18,7 +19,7 @@ fn test_bridged_mt_gadget_verification() {
 		.sbox(PoseidonSbox::Inverse)
 		.build();
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 	// GOAL: To deposit on the ORIGIN and withdraw from the DESTINATION
 	let destination_chain = Scalar::from(2u32);
 
@@ -110,7 +111,7 @@ fn test_bridged_mt_gadget_verification() {
 		pc_gens.clone(),
 		bp_gens.clone(),
 		p_params.clone(),
-		test_rng,
+		test_rng.clone(),
 	);
 
 	setup_verifier(

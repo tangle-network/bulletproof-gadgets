@@ -16,7 +16,8 @@ use bulletproofs::{
 };
 use curve25519_dalek::scalar::Scalar;
 use merlin::Transcript;
-use rand_core::OsRng;
+use rand_core::SeedableRng;
+use rand_chacha::ChaChaRng;
 
 // For benchmarking
 #[cfg(feature = "std")]
@@ -29,7 +30,7 @@ fn test_variable_deposit_tree_verification() {
 		.sbox(PoseidonSbox::Inverse)
 		.build();
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 
 	let input = Scalar::from(10u32);
 	let input_inverse = input.invert();
