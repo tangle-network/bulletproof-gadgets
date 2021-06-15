@@ -381,8 +381,8 @@ checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
 
 [[package]]
 name = "webb-bulletproofs"
-version = "2.0.2"
-source = "git+https://github.com/webb-tools/bulletproofs?branch=pub-bp-gens#b52d42ce66b1e65f8e62ed101307b7c543eb5773"
+version = "2.0.3"
+source = "git+https://github.com/webb-tools/bulletproofs#4897dfcf14c28fa11b91d6fc32912e21fae7f649"
 dependencies = [
  "byteorder",
  "clear_on_drop",
