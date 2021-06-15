@@ -18,9 +18,10 @@ use bulletproofs::{
 	BulletproofGens,
 };
 use curve25519_dalek::{ristretto::CompressedRistretto, scalar::Scalar};
-use rand_chacha::ChaChaRng;
+#[cfg(feature = "std")]
+use rand_core::OsRng;
 use sp_std::collections::btree_map::BTreeMap;
-use rand_core::SeedableRng;
+
 
 pub type DBVal = (Scalar, Scalar);
 
@@ -191,6 +192,7 @@ impl VanillaSparseMerkleTree {
 		}
 	}
 
+	#[cfg(feature = "std")]
 	pub fn prove_zk(
 		&self,
 		root: Scalar,
@@ -205,7 +207,7 @@ impl VanillaSparseMerkleTree {
 			Vec<CompressedRistretto>,
 		),
 	) {
-		let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
+		let mut test_rng = OsRng::default();
 		let mut merkle_proof_vec = Vec::<Scalar>::new();
 		let mut merkle_proof = Some(merkle_proof_vec);
 		let k = self.leaf_indices.get(&leaf.to_bytes()).unwrap();
