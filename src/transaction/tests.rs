@@ -13,7 +13,8 @@ use bulletproofs::{
 };
 use curve25519_dalek::scalar::Scalar;
 use merlin::Transcript;
-use rand_core::OsRng;
+use rand_core::SeedableRng;
+use rand_chacha::ChaChaRng;
 #[cfg(feature = "std")]
 use std::time::Instant;
 
@@ -31,7 +32,7 @@ fn test_is_valid_transaction_spend() {
 	let pc_gens = PedersenGens::default();
 	let bp_gens = BulletproofGens::new(4096, 1);
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 
 	let input = Scalar::from(10u32);
 	let input_inverse = input.invert();

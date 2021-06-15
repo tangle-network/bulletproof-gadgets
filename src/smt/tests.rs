@@ -13,7 +13,8 @@ use bulletproofs::{
 };
 use curve25519_dalek::scalar::Scalar;
 use merlin::Transcript;
-use rand_core::OsRng;
+use rand_core::SeedableRng;
+use rand_chacha::ChaChaRng;
 
 // For benchmarking
 #[cfg(feature = "std")]
@@ -21,7 +22,7 @@ use std::time::Instant;
 
 #[test]
 fn test_vanilla_sparse_merkle_tree() {
-	let mut test_rng: OsRng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 	let width = 6;
 	let p_params = PoseidonBuilder::new(width)
 		.sbox(PoseidonSbox::Inverse)
@@ -59,7 +60,7 @@ fn test_vanilla_sparse_merkle_tree() {
 
 #[test]
 fn test_vsmt_verif() {
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 
 	let width = 6;
 	let p_params = PoseidonBuilder::new(width)
@@ -213,7 +214,7 @@ fn test_vsmt_verif() {
 
 #[test]
 fn test_vsmt_prove_verif() {
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 
 	let width = 6;
 	let p_params = PoseidonBuilder::new(width)

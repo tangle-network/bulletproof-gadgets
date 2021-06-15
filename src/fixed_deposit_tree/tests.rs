@@ -13,7 +13,8 @@ use bulletproofs::{
 };
 use curve25519_dalek::scalar::Scalar;
 use merlin::Transcript;
-use rand_core::OsRng;
+use rand_core::SeedableRng;
+use rand_chacha::ChaChaRng;
 
 // For benchmarking
 #[cfg(feature = "std")]
@@ -26,7 +27,7 @@ fn test_fixed_deposit_tree_verification() {
 		.sbox(PoseidonSbox::Inverse)
 		.build();
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 	let r = Scalar::random(&mut test_rng);
 	let nullifier = Scalar::random(&mut test_rng);
 	let expected_output = Poseidon_hash_2(r, nullifier, &p_params);
@@ -221,7 +222,7 @@ fn test_mixer_verif() {
 		.sbox(PoseidonSbox::Inverse)
 		.build();
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 	let recipient = Scalar::random(&mut test_rng);
 	let relayer = Scalar::random(&mut test_rng);
 	let fake_recipient = Scalar::random(&mut test_rng);

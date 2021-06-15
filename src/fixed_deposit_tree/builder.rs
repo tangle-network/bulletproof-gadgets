@@ -16,6 +16,7 @@ use bulletproofs::{
 	BulletproofGens,
 };
 use curve25519_dalek::{ristretto::CompressedRistretto, scalar::Scalar};
+#[cfg(feature = "std")]
 use rand_core::OsRng;
 use sp_std::collections::btree_map::BTreeMap;
 
@@ -27,6 +28,7 @@ pub struct FixedDepositTree {
 }
 
 impl FixedDepositTree {
+	#[cfg(feature = "std")]
 	pub fn generate_secrets(&mut self) -> Scalar {
 		let mut rng = OsRng::default();
 		let r = Scalar::random(&mut rng);
@@ -70,6 +72,7 @@ impl FixedDepositTree {
 		(*r, *nullifier, *nullifier_hash)
 	}
 
+	#[cfg(feature = "std")]
 	pub fn prove_zk(
 		&self,
 		root: Scalar,

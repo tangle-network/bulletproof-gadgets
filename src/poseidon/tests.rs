@@ -10,7 +10,8 @@ use merlin::Transcript;
 #[cfg(feature = "std")]
 use std::time::Instant;
 
-use rand_core::OsRng;
+use rand_core::SeedableRng;
+use rand_chacha::ChaChaRng;
 
 #[cfg(feature = "std")]
 fn get_poseidon_params(sbox: Option<PoseidonSbox>) -> Poseidon {
@@ -27,7 +28,7 @@ fn poseidon_perm(s_params: Poseidon, transcript_label: &'static [u8]) {
 	let width = s_params.width;
 	let total_rounds = s_params.get_total_rounds();
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 	let input = (0..width)
 		.map(|_| Scalar::random(&mut test_rng))
 		.collect::<Vec<_>>();
@@ -118,7 +119,7 @@ fn poseidon_hash_2(s_params: Poseidon, transcript_label: &'static [u8]) {
 	let _width = s_params.width;
 	let total_rounds = s_params.get_total_rounds();
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 	let xl = Scalar::random(&mut test_rng);
 	let xr = Scalar::random(&mut test_rng);
 	let start = Instant::now();
@@ -229,7 +230,7 @@ fn poseidon_hash_4(s_params: Poseidon, transcript_label: &'static [u8]) {
 	let _width = s_params.width;
 	let total_rounds = s_params.get_total_rounds();
 
-	let mut test_rng = OsRng::default();
+	let mut test_rng = ChaChaRng::from_seed([1u8; 32]);
 	let _input = (0..4)
 		.map(|_| Scalar::random(&mut test_rng))
 		.collect::<Vec<_>>();
