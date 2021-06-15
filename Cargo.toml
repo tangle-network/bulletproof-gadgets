@@ -7,7 +7,7 @@ description = "R1CS Gadgets for Curve25519"
 edition = "2018"
 homepage = "https://substrate.dev"
 license = "Unlicense"
-version = "2.1.0"
+version = "2.1.1"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
