@@ -44,7 +44,7 @@ features = ["yoloproofs"]
 version = "0.1.5"
 
 [features]
-default = ["std"]
+default = ["std", "poseidon_x3_6", "poseidon_x5_6", "poseidon_x17_6", "poseidon_inverse_6"]
 
 poseidon_x3_2 = []
 poseidon_x3_3 = []
