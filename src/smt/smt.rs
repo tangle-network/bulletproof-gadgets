@@ -22,7 +22,6 @@ use curve25519_dalek::{ristretto::CompressedRistretto, scalar::Scalar};
 use rand_core::OsRng;
 use sp_std::collections::btree_map::BTreeMap;
 
-
 pub type DBVal = (Scalar, Scalar);
 
 // TODO: ABSTRACT HASH FUNCTION BETTER
@@ -326,18 +325,22 @@ pub fn vanilla_merkle_merkle_tree_verif_gadget<CS: ConstraintSystem>(
 pub fn gen_zero_tree(width: usize, sbox: &PoseidonSbox) -> Vec<[u8; 32]> {
 	match sbox {
 		PoseidonSbox::Exponentiation3 => match width {
+			#[cfg(feature = "poseidon_x3_6")]
 			6 => smt::x3_6::ZERO_TREE.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Exponentiation5 => match width {
+			#[cfg(feature = "poseidon_x5_6")]
 			6 => smt::x5_6::ZERO_TREE.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Exponentiation17 => match width {
+			#[cfg(feature = "poseidon_x17_6")]
 			6 => smt::x17_6::ZERO_TREE.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Inverse => match width {
+			#[cfg(feature = "poseidon_inverse_6")]
 			6 => smt::inverse_6::ZERO_TREE.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},

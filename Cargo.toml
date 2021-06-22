@@ -44,7 +44,44 @@ features = ["yoloproofs"]
 version = "0.1.5"
 
 [features]
-default = ["std"]
+default = ["std", "poseidon_x3_6", "poseidon_x5_6", "poseidon_x17_6", "poseidon_inverse_6"]
+
+poseidon_x3_2 = []
+poseidon_x3_3 = []
+poseidon_x3_4 = []
+poseidon_x3_5 = []
+poseidon_x3_6 = []
+poseidon_x3_7 = []
+poseidon_x3_8 = []
+poseidon_x3_9 = []
+
+poseidon_x5_2 = []
+poseidon_x5_3 = []
+poseidon_x5_4 = []
+poseidon_x5_5 = []
+poseidon_x5_6 = []
+poseidon_x5_7 = []
+poseidon_x5_8 = []
+poseidon_x5_9 = []
+
+poseidon_x17_2 = []
+poseidon_x17_3 = []
+poseidon_x17_4 = []
+poseidon_x17_5 = []
+poseidon_x17_6 = []
+poseidon_x17_7 = []
+poseidon_x17_8 = []
+poseidon_x17_9 = []
+
+poseidon_inverse_2 = []
+poseidon_inverse_3 = []
+poseidon_inverse_4 = []
+poseidon_inverse_5 = []
+poseidon_inverse_6 = []
+poseidon_inverse_7 = []
+poseidon_inverse_8 = []
+poseidon_inverse_9 = []
+
 verify = []
 std = [
     "rand_core/getrandom",
