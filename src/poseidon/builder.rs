@@ -274,103 +274,167 @@ pub fn gen_round_params(
 	width: usize,
 	sbox: &PoseidonSbox,
 ) -> (usize, (usize, usize)) {
-	let params = match sbox {
+	let params: [usize; 4] = match sbox {
 		PoseidonSbox::Exponentiation3 => match width {
+			#[cfg(feature = "poseidon_x3_2")]
 			2 => params::X3_2,
+			#[cfg(feature = "poseidon_x3_3")]
 			3 => params::X3_3,
+			#[cfg(feature = "poseidon_x3_4")]
 			4 => params::X3_4,
+			#[cfg(feature = "poseidon_x3_5")]
 			5 => params::X3_5,
+			#[cfg(feature = "poseidon_x3_6")]
 			6 => params::X3_6,
+			#[cfg(feature = "poseidon_x3_7")]
 			7 => params::X3_7,
+			#[cfg(feature = "poseidon_x3_8")]
 			8 => params::X3_8,
+			#[cfg(feature = "poseidon_x3_9")]
 			9 => params::X3_9,
 			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Exponentiation5 => match width {
+			#[cfg(feature = "poseidon_x5_2")]
 			2 => params::X5_2,
+			#[cfg(feature = "poseidon_x5_3")]
 			3 => params::X5_3,
+			#[cfg(feature = "poseidon_x5_4")]
 			4 => params::X5_4,
+			#[cfg(feature = "poseidon_x5_5")]
 			5 => params::X5_5,
+			#[cfg(feature = "poseidon_x5_6")]
 			6 => params::X5_6,
+			#[cfg(feature = "poseidon_x5_7")]
 			7 => params::X5_7,
+			#[cfg(feature = "poseidon_x5_8")]
 			8 => params::X5_8,
+			#[cfg(feature = "poseidon_x5_9")]
 			9 => params::X5_9,
 			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Exponentiation17 => match width {
+			#[cfg(feature = "poseidon_x17_2")]
 			2 => params::X17_2,
+			#[cfg(feature = "poseidon_x17_3")]
 			3 => params::X17_3,
+			#[cfg(feature = "poseidon_x17_4")]
 			4 => params::X17_4,
+			#[cfg(feature = "poseidon_x17_5")]
 			5 => params::X17_5,
+			#[cfg(feature = "poseidon_x17_6")]
 			6 => params::X17_6,
+			#[cfg(feature = "poseidon_x17_7")]
 			7 => params::X17_7,
+			#[cfg(feature = "poseidon_x17_8")]
 			8 => params::X17_8,
+			#[cfg(feature = "poseidon_x17_9")]
 			9 => params::X17_9,
 			_ => panic!("Specified width not supported"),
 		},
 		PoseidonSbox::Inverse => match width {
+			#[cfg(feature = "poseidon_inverse_2")]
 			2 => params::INVERSE_2,
+			#[cfg(feature = "poseidon_inverse_3")]
 			3 => params::INVERSE_3,
+			#[cfg(feature = "poseidon_inverse_4")]
 			4 => params::INVERSE_4,
+			#[cfg(feature = "poseidon_inverse_5")]
 			5 => params::INVERSE_5,
+			#[cfg(feature = "poseidon_inverse_6")]
 			6 => params::INVERSE_6,
+			#[cfg(feature = "poseidon_inverse_7")]
 			7 => params::INVERSE_7,
+			#[cfg(feature = "poseidon_inverse_8")]
 			8 => params::INVERSE_8,
+			#[cfg(feature = "poseidon_inverse_9")]
 			9 => params::INVERSE_9,
 			_ => panic!("Specified width not supported"),
 		},
 	};
-	let full_part = params[0] / 2;
+	let full_part: usize = params[0] / 2;
 	(params[1], (full_part, full_part))
 }
 
 // TODO: Write logic to generate correct round keys.
 pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
-	let round_consts = match sbox {
+	let round_consts: Vec<&str> = match sbox {
 		PoseidonSbox::Exponentiation3 => match width {
+			#[cfg(feature = "poseidon_x3_2")]
 			2 => poseidon::x3_2::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x3_3")]
 			3 => poseidon::x3_3::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x3_4")]
 			4 => poseidon::x3_4::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x3_5")]
 			5 => poseidon::x3_5::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x3_6")]
 			6 => poseidon::x3_6::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x3_7")]
 			7 => poseidon::x3_7::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x3_8")]
 			8 => poseidon::x3_8::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x3_9")]
 			9 => poseidon::x3_9::ROUND_CONSTS.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Exponentiation5 => match width {
+			#[cfg(feature = "poseidon_x5_2")]
 			2 => poseidon::x5_2::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x5_3")]
 			3 => poseidon::x5_3::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x5_4")]
 			4 => poseidon::x5_4::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x5_5")]
 			5 => poseidon::x5_5::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x5_6")]
 			6 => poseidon::x5_6::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x5_7")]
 			7 => poseidon::x5_7::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x5_8")]
 			8 => poseidon::x5_8::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x5_9")]
 			9 => poseidon::x5_9::ROUND_CONSTS.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Exponentiation17 => match width {
+			#[cfg(feature = "poseidon_x17_2")]
 			2 => poseidon::x17_2::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x17_3")]
 			3 => poseidon::x17_3::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x17_4")]
 			4 => poseidon::x17_4::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x17_5")]
 			5 => poseidon::x17_5::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x17_6")]
 			6 => poseidon::x17_6::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x17_7")]
 			7 => poseidon::x17_7::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x17_8")]
 			8 => poseidon::x17_8::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_x17_9")]
 			9 => poseidon::x17_9::ROUND_CONSTS.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
 
 		PoseidonSbox::Inverse => match width {
+			#[cfg(feature = "poseidon_inverse_2")]
 			2 => poseidon::inverse_2::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_inverse_3")]
 			3 => poseidon::inverse_3::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_inverse_4")]
 			4 => poseidon::inverse_4::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_inverse_5")]
 			5 => poseidon::inverse_5::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_inverse_6")]
 			6 => poseidon::inverse_6::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_inverse_7")]
 			7 => poseidon::inverse_7::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_inverse_8")]
 			8 => poseidon::inverse_8::ROUND_CONSTS.to_vec(),
+			#[cfg(feature = "poseidon_inverse_9")]
 			9 => poseidon::inverse_9::ROUND_CONSTS.to_vec(),
 			_ => panic!("Specified width not supported"),
 		},
@@ -389,41 +453,49 @@ pub fn gen_round_keys(width: usize, sbox: &PoseidonSbox) -> Vec<Scalar> {
 pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 	let mds_entries: Vec<Vec<&str>> = match sbox {
 		PoseidonSbox::Exponentiation3 => match width {
+			#[cfg(feature = "poseidon_x3_2")]
 			2 => poseidon::x3_2::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x3_3")]
 			3 => poseidon::x3_3::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x3_4")]
 			4 => poseidon::x3_4::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x3_5")]
 			5 => poseidon::x3_5::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x3_6")]
 			6 => poseidon::x3_6::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x3_7")]
 			7 => poseidon::x3_7::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x3_8")]
 			8 => poseidon::x3_8::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x3_9")]
 			9 => poseidon::x3_9::MDS_ENTRIES
 				.to_vec()
 				.iter()
@@ -433,41 +505,49 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 		},
 
 		PoseidonSbox::Exponentiation5 => match width {
+			#[cfg(feature = "poseidon_x5_2")]
 			2 => poseidon::x5_2::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x5_3")]
 			3 => poseidon::x5_3::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x5_4")]
 			4 => poseidon::x5_4::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x5_5")]
 			5 => poseidon::x5_5::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x5_6")]
 			6 => poseidon::x5_6::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x5_7")]
 			7 => poseidon::x5_7::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x5_8")]
 			8 => poseidon::x5_8::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x5_9")]
 			9 => poseidon::x5_9::MDS_ENTRIES
 				.to_vec()
 				.iter()
@@ -477,41 +557,49 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 		},
 
 		PoseidonSbox::Exponentiation17 => match width {
+			#[cfg(feature = "poseidon_x17_2")]
 			2 => poseidon::x17_2::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x17_3")]
 			3 => poseidon::x17_3::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x17_4")]
 			4 => poseidon::x17_4::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x17_5")]
 			5 => poseidon::x17_5::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x17_6")]
 			6 => poseidon::x17_6::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x17_7")]
 			7 => poseidon::x17_7::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x17_8")]
 			8 => poseidon::x17_8::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_x17_9")]
 			9 => poseidon::x17_9::MDS_ENTRIES
 				.to_vec()
 				.iter()
@@ -521,41 +609,49 @@ pub fn gen_mds_matrix(width: usize, sbox: &PoseidonSbox) -> Vec<Vec<Scalar>> {
 		},
 
 		PoseidonSbox::Inverse => match width {
+			#[cfg(feature = "poseidon_inverse_2")]
 			2 => poseidon::inverse_2::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_inverse_3")]
 			3 => poseidon::inverse_3::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_inverse_4")]
 			4 => poseidon::inverse_4::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_inverse_5")]
 			5 => poseidon::inverse_5::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_inverse_6")]
 			6 => poseidon::inverse_6::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_inverse_7")]
 			7 => poseidon::inverse_7::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_inverse_8")]
 			8 => poseidon::inverse_8::MDS_ENTRIES
 				.to_vec()
 				.iter()
 				.map(|x| x.to_vec())
 				.collect(),
+			#[cfg(feature = "poseidon_inverse_9")]
 			9 => poseidon::inverse_9::MDS_ENTRIES
 				.to_vec()
 				.iter()
